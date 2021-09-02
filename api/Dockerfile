@@ -8,4 +8,4 @@ RUN go mod download ecommerce
 COPY . .
 
 RUN go build -o main .
-ENTRYPOINT [ "/api/main" ]
+ENTRYPOINT [ "/api/main"]
