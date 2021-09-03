@@ -8,7 +8,7 @@ import (
 
 	// internal pkg
 	"ecommerce/models"
-	"ecommerce/utils.go"
+	"ecommerce/utils"
 
 	"github.com/gin-gonic/gin"
 )
