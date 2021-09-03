@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"log"
 
 	"gorm.io/gorm"
@@ -19,19 +20,27 @@ func NewRepo(db *gorm.DB, logger log.Logger) Repository {
 	}
 }
 
+/*
 // Create table for our models if not exists
-func (repo *repo) createTableModel(model interface{}) {
-	tx := repo.db.Model(&model)
+func (repo *repo) createMigrationModel(model interface{}) {
+	fmt.Println("create migration model value: ", model)
+	tx := repo.db.AutoMigrate(model)
 	if tx.Error != nil {
 		repo.logger.Println("err while creating table: ", tx.Error)
 		return
 	}
 }
+*/
 
 func (repo *repo) Create(ctx context.Context, models interface{}) (string, error) {
-	repo.createTableModel(models)
+	fmt.Println("create repo models value: ", models)
+	repo.db.AutoMigrate(models)
+	tx2 := repo.db.Model(models)
+	if tx2.Error != nil {
+		return "err while creating table: ", tx2.Error
+	}
 
-	tx := repo.db.Create(&models)
+	tx := repo.db.Create(models)
 	if tx.Error != nil {
 		return "err while creating models: ", tx.Error
 	}

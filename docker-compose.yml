@@ -19,4 +19,4 @@ services:
     depends_on: 
       - db-ecommerce
     volumes:
-      - ./data/postgres:/var/lib/postgresql/data
+      - ./postgres/postgres:/var/lib/postgresql/data
