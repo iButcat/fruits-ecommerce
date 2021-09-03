@@ -8,7 +8,9 @@ import (
 
 	// internal pkg
 	"ecommerce/config"
-	"ecommerce/server"
+	"ecommerce/controllers"
+	"ecommerce/repository"
+	"ecommerce/router"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -20,13 +22,19 @@ func main() {
 		log.Println(err)
 	}
 
-	db, err := gorm.Open(postgres.Open(config.Dsn), &gorm.Config{})
-	if err != nil {
-		log.Println("error while initializing db...", err)
+	var db *gorm.DB
+	{
+		var err error
+		db, err = gorm.Open(postgres.Open(config.Dsn), &gorm.Config{})
+		if err != nil {
+			log.Println("error while initializing db...", err)
+		}
 	}
 
-	if db != nil {
-		log.Println("db connected....")
+	var controller controllers.Controllers
+	{
+		repository := repository.NewRepo(db, log.Logger{})
+		controller = controllers.NewControllers(repository, log.Logger{})
 	}
 
 	errs := make(chan error)
@@ -37,8 +45,9 @@ func main() {
 	}()
 
 	go func() {
+		router := router.NewRouter(controller, log.Logger{})
 		log.Println("Starting server...")
-		errs <- server.InitServer()
+		errs <- router.Run()
 	}()
 
 	log.Println("exit", <-errs)
