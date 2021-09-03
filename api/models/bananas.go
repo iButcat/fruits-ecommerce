@@ -1,7 +1,9 @@
 package models
 
+import "gorm.io/gorm"
+
 type Bananas struct {
-	ID       string `json:"id"`
+	gorm.Model
 	Name     string `json:"name"`
 	Quantity int    `json:"quantity"`
 	Empty    bool   `json:"empty"`
