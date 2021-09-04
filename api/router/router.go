@@ -17,6 +17,7 @@ func NewRouter(controller controllers.Controllers, logger log.Logger) *gin.Engin
 		userGroup := v1.Group("user")
 		{
 			userGroup.POST("/register", controller.Register)
+			userGroup.POST("/login", controller.Login)
 		}
 	}
 
