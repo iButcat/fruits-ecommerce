@@ -49,7 +49,6 @@ func (repo *repo) Create(ctx context.Context, models interface{}) (string, error
 }
 
 func (repo *repo) Get(ctx context.Context, models interface{}, fields ...string) (interface{}, error) {
-	var data interface{}
 	var args []string
 	var id string
 	var username string
@@ -60,20 +59,22 @@ func (repo *repo) Get(ctx context.Context, models interface{}, fields ...string)
 	if len(args) != 1 {
 		username = args[0]
 		password = args[1]
-		data = repo.db.Where("username = ? AND password = ? ",
-			username, password).Find(&models)
-		fmt.Println(data)
-		typeData := reflect.TypeOf(data)
+		if err := repo.db.Where("username = ? AND password = ? ",
+			username, password).Find(models).Error; err != nil {
+			log.Println("error while querying: ", err)
+		}
 		typeModels := reflect.TypeOf(models)
-		log.Println(typeData, "data type: ")
 		log.Println(typeModels, "models type: ")
 	} else {
 		id = args[0]
-		data = repo.db.First(&models, id)
-		fmt.Println("data models: ", data)
-		fmt.Println(data)
+		if err := repo.db.First(models, id).Error; err != nil {
+			log.Println("error while querying: ", err)
+		}
+		typeModels := reflect.TypeOf(models)
+		log.Println(typeModels, "models type: ")
+		log.Println("models: ", models)
 	}
-	return data, nil
+	return models, nil
 }
 
 func (repo *repo) GetAll(ctx context.Context) ([]interface{}, error) {
