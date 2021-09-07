@@ -9,8 +9,15 @@ import (
 
 // Controllers for our different business logic
 type Controllers interface {
+	// auth controllers
 	Register(ctx *gin.Context)
 	Login(ctx *gin.Context)
+
+	// products controllers
+	CreateProducts(ctx *gin.Context)
+	GetProducts(ctx *gin.Context)
+	UpdateProducts(ctx *gin.Context)
+	DeleteProducts(ctx *gin.Context)
 }
 
 type controller struct {
