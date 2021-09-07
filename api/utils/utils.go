@@ -1,6 +1,10 @@
 package utils
 
-import "regexp"
+import (
+	"encoding/json"
+	"log"
+	"regexp"
+)
 
 // basic regex that check if corrects email
 func RegexEmailChecker(email string) bool {
@@ -17,4 +21,25 @@ func ValidateIfNotEmpty(fields ...int) bool {
 		}
 	}
 	return true
+}
+
+// returns the string representation of any given string
+func ToString(field interface{}) string {
+	converted, err := json.Marshal(field)
+	if err != nil {
+		log.Println(err)
+	}
+	return string(converted)
+}
+
+func CalculateDiscountBanana(quantity int, totalPrice float64) float64 {
+	var result float64
+	var biggerThanSever bool
+	if quantity >= 7 {
+		biggerThanSever = true
+	}
+	if biggerThanSever {
+		result = totalPrice - (totalPrice * .10)
+	}
+	return result
 }
