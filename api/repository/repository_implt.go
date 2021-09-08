@@ -48,30 +48,14 @@ func (repo *repo) Create(ctx context.Context, models interface{}) (string, error
 }
 
 // Get data from different fields like id, username, password, etc...
-func (repo *repo) Get(ctx context.Context, models interface{}, fields ...string) (interface{}, error) {
-	var args []string
-	var id string
-	var username string
-	var password string
-
-	args = append(args, fields...)
-
-	if len(args) != 1 {
-		username = args[0]
-		password = args[1]
-		if err := repo.db.Where("username = ? AND password = ? ",
-			username, password).Find(models).Error; err != nil {
-			log.Println("error while querying: ", err)
-		}
-	} else {
-		id = args[0]
-		if err := repo.db.First(models, id).Error; err != nil {
-			log.Println("error while querying: ", err)
-		}
+func (repo *repo) Get(ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error) {
+	if err := repo.db.Where(fields).Find(models).Error; err != nil {
+		return nil, err
 	}
 	return models, nil
 }
 
+// Get All users
 func (repo *repo) GetAll(ctx context.Context, models interface{}) (interface{}, error) {
 	if err := repo.db.Find(models).Error; err != nil {
 		return nil, err
@@ -79,6 +63,7 @@ func (repo *repo) GetAll(ctx context.Context, models interface{}) (interface{}, 
 	return models, nil
 }
 
+// update any given models with their column and values that need to be change
 func (repo *repo) Update(ctx context.Context, models interface{}, fields map[string]interface{}) (bool, error) {
 	for index, value := range fields {
 		if err := repo.db.Model(models).Update(index, value).Error; err != nil {
@@ -88,6 +73,7 @@ func (repo *repo) Update(ctx context.Context, models interface{}, fields map[str
 	return true, nil
 }
 
+// delete any given data from models with id
 func (repo *repo) Delete(ctx context.Context, models interface{}, id string) (bool, error) {
 	if err := repo.db.Delete(models, id).Error; err != nil {
 		return false, err
