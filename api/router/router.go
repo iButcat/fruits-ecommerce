@@ -1,13 +1,15 @@
 package router
 
 import (
-	"ecommerce/controllers"
 	"log"
+
+	// internal pkg
+	"ecommerce/service"
 
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(controller controllers.Controllers, logger log.Logger) *gin.Engine {
+func NewRouter(service service.Service, logger log.Logger) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
@@ -16,16 +18,16 @@ func NewRouter(controller controllers.Controllers, logger log.Logger) *gin.Engin
 	{
 		userGroup := v1.Group("user")
 		{
-			userGroup.POST("/register", controller.Register)
-			userGroup.POST("/login", controller.Login)
+			userGroup.POST("/register", service.Register)
+			userGroup.POST("/login", service.Login)
 		}
 
 		productsGroup := v1.Group("products")
 		{
-			productsGroup.GET("/get", controller.GetProducts)
-			productsGroup.PUT("/update", controller.UpdateProducts)
-			productsGroup.POST("/create", controller.CreateProducts)
-			productsGroup.DELETE("/delete", controller.DeleteProducts)
+			productsGroup.GET("/get", service.GetProducts)
+			productsGroup.PUT("/update", service.UpdateProducts)
+			productsGroup.POST("/create", service.CreateProducts)
+			productsGroup.DELETE("/delete", service.DeleteProducts)
 		}
 	}
 
