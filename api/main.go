@@ -32,14 +32,14 @@ func main() {
 		}
 	}
 
-	repository := repository.NewRepo(db, log.Logger{})
-	// clean up with var ()
-	authService := service.NewAuthService(repository, log.Logger{})
-	authController := controller.NewAuthController(authService, log.Logger{})
-	productsService := service.NewServiceProducts(repository, log.Logger{})
-	productsController := controller.NewProductsController(productsService, log.Logger{})
-
-	var routerController = router.NewControllerRouter(authController, productsController)
+	var (
+		repository         = repository.NewRepo(db, log.Logger{})
+		authService        = service.NewAuthService(repository, log.Logger{})
+		authController     = controller.NewAuthController(authService, log.Logger{})
+		productsService    = service.NewServiceProducts(repository, log.Logger{})
+		productsController = controller.NewProductsController(productsService, log.Logger{})
+		routerController   = router.NewControllerRouter(authController, productsController)
+	)
 
 	errs := make(chan error)
 
