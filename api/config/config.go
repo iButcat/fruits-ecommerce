@@ -4,8 +4,9 @@ import "github.com/spf13/viper"
 
 // Containing different fields as DSN, port, etc...
 type Config struct {
-	Dsn  string `mapstructure:"dsn"`
-	Port string `mapstructure:"port"`
+	Dsn       string `mapstructure:"dsn"`
+	Port      string `mapstructure:"port"`
+	SecretKey string `mapstructure:"secret_key"`
 }
 
 // Load our config in our struct to use it.
