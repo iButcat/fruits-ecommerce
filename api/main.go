@@ -8,9 +8,9 @@ import (
 
 	// internal pkg
 	"ecommerce/config"
-	"ecommerce/controllers"
 	"ecommerce/repository"
 	"ecommerce/router"
+	"ecommerce/service"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -31,10 +31,10 @@ func main() {
 		}
 	}
 
-	var controller controllers.Controllers
+	var services service.Service
 	{
 		repository := repository.NewRepo(db, log.Logger{})
-		controller = controllers.NewControllers(repository, log.Logger{})
+		services = service.NewService(repository, log.Logger{})
 	}
 
 	errs := make(chan error)
@@ -45,7 +45,7 @@ func main() {
 	}()
 
 	go func() {
-		router := router.NewRouter(controller, log.Logger{})
+		router := router.NewRouter(services, log.Logger{})
 		log.Println("Starting server...")
 		errs <- router.Run()
 	}()
