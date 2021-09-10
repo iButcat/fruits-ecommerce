@@ -5,6 +5,7 @@ import (
 
 	// internal pkg
 	"ecommerce/controller"
+	"ecommerce/middleware"
 
 	"github.com/gin-gonic/gin"
 )
@@ -26,6 +27,8 @@ func (cr controllersRouter) NewRouter(logger log.Logger) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
+	// call gin jwt
+	router.Use(middleware.CustomJwtMiddleware())
 
 	v1 := router.Group("v1")
 	{
@@ -43,6 +46,5 @@ func (cr controllersRouter) NewRouter(logger log.Logger) *gin.Engine {
 			productsGroup.DELETE("/delete", cr.productsController.Delete)
 		}
 	}
-
 	return router
 }

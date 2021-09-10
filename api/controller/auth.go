@@ -32,6 +32,7 @@ func NewAuthController(service service.AuthService, logger log.Logger) AuthContr
 
 var (
 	errWrongLoginCredentials = errors.New("err wrong credentials has been submitted")
+	errTokenIsNotValid       = errors.New("err token is not valid")
 )
 
 func (c authController) Register(ctx *gin.Context) {
