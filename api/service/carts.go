@@ -1,11 +1,43 @@
 package service
 
-import "github.com/gin-gonic/gin"
+import (
+	"context"
+	"ecommerce/models"
+	"ecommerce/repository"
+	"log"
+)
 
-func (s service) ListCarts(ctx *gin.Context) {}
+type ServiceCarts interface {
+	ListCarts(ctx context.Context) (models.Cart, error)
+	AddCarts(ctx context.Context, cart models.Cart) (bool, error)
+	UpdateCarts(ctx context.Context, id string) (bool, error)
+	DeleteCarts(ctx context.Context, id string) (bool, error)
+}
 
-func (s service) AddCarts(ctx *gin.Context) {}
+type serviceCarts struct {
+	repository repository.Repository
+	logger     log.Logger
+}
 
-func (s service) UpdateCarts(ctx *gin.Context) {}
+func NewServiceCarts(repo repository.Repository, logger log.Logger) ServiceCarts {
+	return &serviceCarts{
+		repository: repo,
+		logger:     logger,
+	}
+}
 
-func (s service) DeleteCarts(ctx *gin.Context) {}
+func (s serviceCarts) ListCarts(ctx context.Context) (models.Cart, error) {
+	return models.Cart{}, nil
+}
+
+func (s serviceCarts) AddCarts(ctx context.Context, cart models.Cart) (bool, error) {
+	return true, nil
+}
+
+func (s serviceCarts) UpdateCarts(ctx context.Context, id string) (bool, error) {
+	return true, nil
+}
+
+func (s serviceCarts) DeleteCarts(ctx context.Context, id string) (bool, error) {
+	return true, nil
+}
