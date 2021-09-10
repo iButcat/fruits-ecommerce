@@ -4,12 +4,25 @@ import (
 	"log"
 
 	// internal pkg
-	"ecommerce/service"
+	"ecommerce/controller"
 
 	"github.com/gin-gonic/gin"
 )
 
-func NewRouter(service service.Service, logger log.Logger) *gin.Engine {
+type controllersRouter struct {
+	authController     controller.AuthController
+	productsController controller.ProductsController
+}
+
+func NewControllerRouter(authController controller.AuthController,
+	productsController controller.ProductsController) *controllersRouter {
+	return &controllersRouter{
+		authController:     authController,
+		productsController: productsController,
+	}
+}
+
+func (cr controllersRouter) NewRouter(logger log.Logger) *gin.Engine {
 	router := gin.New()
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
@@ -18,16 +31,16 @@ func NewRouter(service service.Service, logger log.Logger) *gin.Engine {
 	{
 		userGroup := v1.Group("user")
 		{
-			userGroup.POST("/register", service.Register)
-			userGroup.POST("/login", service.Login)
+			userGroup.POST("/register", cr.authController.Register)
+			userGroup.POST("/login", cr.authController.Login)
 		}
 
 		productsGroup := v1.Group("products")
 		{
-			productsGroup.GET("/get", service.GetProducts)
-			productsGroup.PUT("/update", service.UpdateProducts)
-			productsGroup.POST("/create", service.CreateProducts)
-			productsGroup.DELETE("/delete", service.DeleteProducts)
+			productsGroup.GET("/get", cr.productsController.GetById)
+			productsGroup.PUT("/getall", cr.productsController.GetAll)
+			productsGroup.POST("/create", cr.productsController.Update)
+			productsGroup.DELETE("/delete", cr.productsController.Delete)
 		}
 	}
 

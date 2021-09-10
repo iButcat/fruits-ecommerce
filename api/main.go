@@ -8,6 +8,7 @@ import (
 
 	// internal pkg
 	"ecommerce/config"
+	"ecommerce/controller"
 	"ecommerce/repository"
 	"ecommerce/router"
 	"ecommerce/service"
@@ -31,11 +32,14 @@ func main() {
 		}
 	}
 
-	var services service.Service
-	{
-		repository := repository.NewRepo(db, log.Logger{})
-		services = service.NewService(repository, log.Logger{})
-	}
+	repository := repository.NewRepo(db, log.Logger{})
+	// clean up with var ()
+	authService := service.NewAuthService(repository, log.Logger{})
+	authController := controller.NewAuthController(authService, log.Logger{})
+	productsService := service.NewServiceProducts(repository, log.Logger{})
+	productsController := controller.NewProductsController(productsService, log.Logger{})
+
+	var routerController = router.NewControllerRouter(authController, productsController)
 
 	errs := make(chan error)
 
@@ -45,9 +49,10 @@ func main() {
 	}()
 
 	go func() {
-		router := router.NewRouter(services, log.Logger{})
+		router := routerController.NewRouter(log.Logger{})
 		log.Println("Starting server...")
 		errs <- router.Run()
+		log.Println(errs)
 	}()
 
 	log.Println("exit", <-errs)
