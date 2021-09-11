@@ -1,7 +1,6 @@
 package middleware
 
 import (
-	"errors"
 	"log"
 	"time"
 
@@ -16,8 +15,6 @@ import (
 
 var (
 	identityKey = "id"
-
-	errNoUsernamePassowrd = errors.New("username or password has not be submited")
 )
 
 func CustomJwtMiddleware(controllersAuth controller.AuthController) *jwt.GinJWTMiddleware {
@@ -44,13 +41,16 @@ func CustomJwtMiddleware(controllersAuth controller.AuthController) *jwt.GinJWTM
 		Authenticator: controllersAuth.Login,
 		// jwt.ErrFailedAuthentication
 		// this is where we can filter per roles
-		Authorizator: func(data interface{}, c *gin.Context) bool {
-			if v, ok := data.(*models.User); ok && v.Username == "admin" {
-				return true
-			}
+		Authorizator: nil,
+		/*
+			 func(data interface{}, c *gin.Context) bool {
+				if v, ok := data.(*models.User); ok && v.Username == "admin" {
+					return true
+				}
 
-			return false
-		},
+				return false
+			}
+		*/
 		Unauthorized: func(c *gin.Context, code int, message string) {
 			c.JSON(code, gin.H{
 				"code":    code,
