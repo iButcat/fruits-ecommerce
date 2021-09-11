@@ -56,6 +56,9 @@ require (
 	google.golang.org/protobuf v1.26.0 // indirect
 )
 
-require github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 // indirect
+)
 
-require github.com/appleboy/gin-jwt/v2 v2.6.4 // indirect
+require github.com/appleboy/gin-jwt v2.5.0+incompatible
