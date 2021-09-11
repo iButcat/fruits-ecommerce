@@ -9,6 +9,7 @@ import (
 	// internal pkg
 	"ecommerce/config"
 	"ecommerce/controller"
+	"ecommerce/models"
 	"ecommerce/repository"
 	"ecommerce/router"
 	"ecommerce/service"
@@ -30,6 +31,39 @@ func main() {
 		if err != nil {
 			log.Println("error while initializing db...", err)
 		}
+	}
+
+	ok, err := createModels(db, &models.Bananas{
+		Name:     "bananas",
+		Price:    0.85,
+		Quantity: 99,
+		Empty:    false,
+	}, &models.Apples{
+		Name:     "apples",
+		Price:    0.70,
+		Quantity: 99,
+		Empty:    false,
+	}, &models.Oranges{
+		Name:     "oranges",
+		Price:    0.67,
+		Quantity: 99,
+		Empty:    false,
+	}, &models.Pears{
+		Name:     "pears",
+		Price:    0.85,
+		Quantity: 99,
+		Empty:    false,
+	},
+		&models.Products{
+			Apples:  models.Apples{},
+			Oranges: models.Oranges{},
+			Bananas: models.Bananas{},
+			Pears:   models.Pears{},
+		})
+	if ok && err == nil {
+		log.Println("models has been created")
+	} else {
+		log.Println(err)
 	}
 
 	var (
