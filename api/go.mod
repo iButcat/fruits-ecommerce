@@ -41,6 +41,7 @@ require (
 )
 
 require (
+	github.com/appleboy/gin-jwt/v2 v2.6.4
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-playground/locales v0.13.0 // indirect
 	github.com/go-playground/universal-translator v0.17.0 // indirect
@@ -54,3 +55,7 @@ require (
 	github.com/ugorji/go/codec v1.1.7 // indirect
 	google.golang.org/protobuf v1.26.0 // indirect
 )
+
+require github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+
+require github.com/appleboy/gin-jwt/v2 v2.6.4 // indirect
