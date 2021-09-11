@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 
+	jwt "github.com/appleboy/gin-jwt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -102,7 +103,7 @@ func (c authController) Login(ctx *gin.Context) (interface{}, error) {
 	if userRepo.Username != userModel.Username || userRepo.Password != userModel.Password {
 		log.Println(errWrongLoginCredentials)
 		ctx.JSON(400, gin.H{"error": errWrongLoginCredentials})
-		return nil, err
+		return nil, jwt.ErrFailedAuthentication
 	}
 
 	ctx.JSON(200, gin.H{"logged": true})
