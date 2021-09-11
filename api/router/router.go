@@ -30,7 +30,8 @@ func (cr controllersRouter) NewRouter(logger log.Logger) *gin.Engine {
 	router.Use(gin.Logger())
 	router.Use(gin.Recovery())
 
-	err := middleware.CustomJwtMiddleware().MiddlewareInit()
+	customJwtMiddleware := middleware.CustomJwtMiddleware(cr.authController)
+	err := customJwtMiddleware.MiddlewareInit()
 	if err != nil {
 		log.Fatal("authMiddleware", err.Error())
 	}
@@ -40,12 +41,11 @@ func (cr controllersRouter) NewRouter(logger log.Logger) *gin.Engine {
 		userGroup := v1.Group("user")
 		{
 			userGroup.POST("/register", cr.authController.Register)
-			userGroup.POST("/login", cr.authController.Login)
-			userGroup.POST("/token", middleware.CustomJwtMiddleware().LoginHandler) // generate jwt token
+			userGroup.POST("/login", customJwtMiddleware.LoginHandler) // generate jwt token
 		}
 
 		authTestGroup := v1.Group("authtest")
-		authTestGroup.Use(middleware.CustomJwtMiddleware().MiddlewareFunc())
+		authTestGroup.Use(customJwtMiddleware.MiddlewareFunc())
 		{
 			authTestGroup.GET("/hello", func(ctx *gin.Context) {
 				claims := jwt.ExtractClaims(ctx)

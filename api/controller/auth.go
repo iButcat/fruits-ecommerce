@@ -14,7 +14,7 @@ import (
 
 type AuthController interface {
 	Register(ctx *gin.Context)
-	Login(ctx *gin.Context)
+	Login(ctx *gin.Context) (interface{}, error)
 	Logout(ctx *gin.Context)
 }
 
@@ -73,7 +73,8 @@ func (c authController) Register(ctx *gin.Context) {
 	ctx.JSON(201, gin.H{"success": saveUser})
 }
 
-func (c authController) Login(ctx *gin.Context) {
+// modify return value, not that great
+func (c authController) Login(ctx *gin.Context) (interface{}, error) {
 	var userModel = models.User{}
 
 	// TODO: move it into a function
@@ -83,7 +84,7 @@ func (c authController) Login(ctx *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(400, gin.H{"error": err.Error()})
-		return
+		return nil, err
 	}
 
 	json.Unmarshal(readRequest, &userModel)
@@ -95,16 +96,17 @@ func (c authController) Login(ctx *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(400, gin.H{"error": err.Error()})
-		return
+		return nil, err
 	}
 
 	if userRepo.Username != userModel.Username || userRepo.Password != userModel.Password {
 		log.Println(errWrongLoginCredentials)
 		ctx.JSON(400, gin.H{"error": errWrongLoginCredentials})
-		return
+		return nil, err
 	}
 
 	ctx.JSON(200, gin.H{"logged": true})
+	return &userRepo, nil
 }
 
 func (c authController) Logout(ctx *gin.Context) {

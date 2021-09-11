@@ -1,19 +1,18 @@
 package middleware
 
 import (
-	"ecommerce/models"
 	"errors"
 	"log"
 	"time"
 
+	// internal pkg
+
+	"ecommerce/controller"
+	"ecommerce/models"
+
 	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
-
-type LoginVals struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
-}
 
 var (
 	identityKey = "id"
@@ -21,9 +20,7 @@ var (
 	errNoUsernamePassowrd = errors.New("username or password has not be submited")
 )
 
-func CustomJwtMiddleware() *jwt.GinJWTMiddleware {
-	var loginVals = LoginVals{}
-
+func CustomJwtMiddleware(controllersAuth controller.AuthController) *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte("secret key"),
@@ -44,22 +41,9 @@ func CustomJwtMiddleware() *jwt.GinJWTMiddleware {
 				Username: claims[identityKey].(string),
 			}
 		},
-		Authenticator: func(c *gin.Context) (interface{}, error) {
-
-			if err := c.ShouldBind(&loginVals); err != nil {
-				return "", jwt.ErrMissingLoginValues
-			}
-			userID := loginVals.Username
-			password := loginVals.Password
-
-			if (userID == "admin" && password == "admin") || (userID == "test" && password == "test") {
-				return &models.User{
-					Username: userID,
-				}, nil
-			}
-
-			return nil, jwt.ErrFailedAuthentication
-		},
+		Authenticator: controllersAuth.Login,
+		// jwt.ErrFailedAuthentication
+		// this is where we can filter per roles
 		Authorizator: func(data interface{}, c *gin.Context) bool {
 			if v, ok := data.(*models.User); ok && v.Username == "admin" {
 				return true
