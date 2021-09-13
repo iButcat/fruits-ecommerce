@@ -5,13 +5,14 @@ import (
 	"log"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 // Generic repo for our differents models
 type Repository interface {
 	Create(ctx context.Context, models interface{}) (string, error)
 	Get(ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error)
-	GetAll(ctx context.Context, models interface{}) (interface{}, error)
+	GetAll(ctx context.Context, models interface{}, fields ...interface{}) (interface{}, error)
 	Update(ctx context.Context, models interface{}, fields map[string]interface{}) (bool, error)
 	Delete(ctx context.Context, models interface{}, id string) (bool, error)
 }
@@ -28,21 +29,9 @@ func NewRepo(db *gorm.DB, logger log.Logger) Repository {
 	}
 }
 
-// Create table for our models if not exists
-func createMigrationModel(repo *repo, model interface{}) error {
-	err := repo.db.AutoMigrate(model)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 // Create data from any given models
 func (repo *repo) Create(ctx context.Context, models interface{}) (string, error) {
-	// auto migrate if need it.
-	if err := createMigrationModel(repo, models); err != nil {
-		return "", err
-	}
+	repo.db.AutoMigrate(models)
 
 	tx2 := repo.db.Model(models)
 	if tx2.Error != nil {
@@ -64,9 +53,9 @@ func (repo *repo) Get(ctx context.Context, models interface{}, fields map[string
 	return models, nil
 }
 
-// Get All users
-func (repo *repo) GetAll(ctx context.Context, models interface{}) (interface{}, error) {
-	if err := repo.db.Find(models).Error; err != nil {
+// Get All
+func (repo *repo) GetAll(ctx context.Context, models interface{}, fields ...interface{}) (interface{}, error) {
+	if err := repo.db.Preload(clause.Associations).Find(models).Error; err != nil {
 		return nil, err
 	}
 	return models, nil

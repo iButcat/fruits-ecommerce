@@ -9,7 +9,6 @@ import (
 	// internal pkg
 	"ecommerce/config"
 	"ecommerce/controller"
-	"ecommerce/models"
 	"ecommerce/repository"
 	"ecommerce/router"
 	"ecommerce/service"
@@ -33,46 +32,15 @@ func main() {
 		}
 	}
 
-	ok, err := createModels(db, &models.Bananas{
-		Name:     "bananas",
-		Price:    0.85,
-		Quantity: 99,
-		Empty:    false,
-	}, &models.Apples{
-		Name:     "apples",
-		Price:    0.70,
-		Quantity: 99,
-		Empty:    false,
-	}, &models.Oranges{
-		Name:     "oranges",
-		Price:    0.67,
-		Quantity: 99,
-		Empty:    false,
-	}, &models.Pears{
-		Name:     "pears",
-		Price:    0.85,
-		Quantity: 99,
-		Empty:    false,
-	},
-		&models.Products{
-			Apples:  models.Apples{},
-			Oranges: models.Oranges{},
-			Bananas: models.Bananas{},
-			Pears:   models.Pears{},
-		})
-	if ok && err == nil {
-		log.Println("models has been created")
-	} else {
-		log.Println(err)
-	}
-
 	var (
 		repository         = repository.NewRepo(db, log.Logger{})
 		authService        = service.NewAuthService(repository, log.Logger{})
 		authController     = controller.NewAuthController(authService, log.Logger{})
 		productsService    = service.NewServiceProducts(repository, log.Logger{})
 		productsController = controller.NewProductsController(productsService, log.Logger{})
-		routerController   = router.NewControllerRouter(authController, productsController)
+		cartService        = service.NewServiceCarts(repository, log.Logger{})
+		cartController     = controller.NewCartController(cartService, log.Logger{})
+		routerController   = router.NewControllerRouter(authController, productsController, cartController)
 	)
 
 	errs := make(chan error)
@@ -85,9 +53,11 @@ func main() {
 	go func() {
 		router := routerController.NewRouter(log.Logger{})
 		log.Println("Starting server...")
-		errs <- router.Run()
+		errs <- router.Run(config.Port)
 		log.Println(errs)
 	}()
+
+	noot(db)
 
 	log.Println("exit", <-errs)
 }
