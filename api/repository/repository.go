@@ -11,8 +11,9 @@ import (
 // Generic repo for our differents models
 type Repository interface {
 	Create(ctx context.Context, models interface{}) (string, error)
+	GetRows(ctx context.Context, models interface{}) (interface{}, error)
 	Get(ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error)
-	GetAll(ctx context.Context, models interface{}, fields ...interface{}) (interface{}, error)
+	GetAll(ctx context.Context, models interface{}) (interface{}, error)
 	Update(ctx context.Context, models interface{}, fields map[string]interface{}) (bool, error)
 	Delete(ctx context.Context, models interface{}, id string) (bool, error)
 }
@@ -31,30 +32,36 @@ func NewRepo(db *gorm.DB, logger log.Logger) Repository {
 
 // Create data from any given models
 func (repo *repo) Create(ctx context.Context, models interface{}) (string, error) {
-	repo.db.AutoMigrate(models)
-
-	tx2 := repo.db.Model(models)
-	if tx2.Error != nil {
-		return "err while creating table: ", tx2.Error
-	}
-
-	tx := repo.db.Create(models)
+	tx := repo.db.Omit(clause.Associations).Create(models)
 	if tx.Error != nil {
 		return "err while creating models: ", tx.Error
 	}
 	return "Data has been created", nil
 }
 
+func (repo *repo) GetRows(ctx context.Context, models interface{}) (interface{}, error) {
+	rows, err := repo.db.Model(models).Preload(clause.Associations).Rows()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		repo.db.ScanRows(rows, models)
+	}
+	return models, nil
+}
+
 // Get data from different fields like id, username, password, etc...
 func (repo *repo) Get(ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error) {
-	if err := repo.db.Where(fields).Find(models).Error; err != nil {
+	if err := repo.db.Where(fields).Preload(clause.Associations).Find(models).Error; err != nil {
 		return nil, err
 	}
 	return models, nil
 }
 
 // Get All
-func (repo *repo) GetAll(ctx context.Context, models interface{}, fields ...interface{}) (interface{}, error) {
+func (repo *repo) GetAll(ctx context.Context, models interface{}) (interface{}, error) {
 	if err := repo.db.Preload(clause.Associations).Find(models).Error; err != nil {
 		return nil, err
 	}

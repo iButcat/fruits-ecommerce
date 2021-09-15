@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 
@@ -10,6 +9,7 @@ import (
 	"ecommerce/service"
 	"encoding/json"
 
+	jwt "github.com/appleboy/gin-jwt/v2"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,7 +17,6 @@ type CartController interface {
 	Add(ctx *gin.Context)
 	List(ctx *gin.Context)
 	Update(ctx *gin.Context)
-	Delete(ctx *gin.Context)
 }
 
 type cartController struct {
@@ -41,11 +40,12 @@ func (c cartController) Add(ctx *gin.Context) {
 		return
 	}
 	json.Unmarshal(data, &cart)
+	claims := jwt.ExtractClaims(ctx)
+	var fields = make(map[string]string)
+	fields["username"] = claims["id"].(string)
+	fields["product_name"] = "bananas"
 
-	user, _ := ctx.Get("id")
-	userId := user.(*models.User).ID
-
-	success, err := c.service.AddCarts(ctx, cart, fmt.Sprint(userId))
+	success, err := c.service.AddCarts(ctx, cart, fields["product_name"], fields["username"])
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(400, gin.H{"error": err.Error()})
@@ -55,13 +55,17 @@ func (c cartController) Add(ctx *gin.Context) {
 }
 
 func (c cartController) List(ctx *gin.Context) {
-
+	claims := jwt.ExtractClaims(ctx)
+	userID := claims["id"].(string)
+	cart, err := c.service.ListCarts(ctx, userID)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(400, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(200, gin.H{"cart": cart})
 }
 
 func (c cartController) Update(ctx *gin.Context) {
-
-}
-
-func (c cartController) Delete(ctx *gin.Context) {
 
 }

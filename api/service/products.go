@@ -8,9 +8,8 @@ import (
 )
 
 type ServiceProducts interface {
-	GetProducts(ctx context.Context) (*models.Products, error)
-	UpdateProducts(ctx context.Context)
-	DeleteProducts(ctx context.Context)
+	GetProducts(ctx context.Context) (*[]models.Product, error)
+	GetProduct(ctx context.Context, id string) (*models.Product, error)
 }
 
 type serviceProducts struct {
@@ -25,19 +24,16 @@ func NewServiceProducts(repo repository.Repository, logger log.Logger) ServicePr
 	}
 }
 
-func (s serviceProducts) GetProducts(ctx context.Context) (*models.Products, error) {
-	data, err := s.repository.GetAll(ctx, &models.Products{})
+func (s serviceProducts) GetProducts(ctx context.Context) (*[]models.Product, error) {
+	allProducts := []models.Product{}
+	data, err := s.repository.GetRows(ctx, &allProducts)
 	if err != nil {
 		log.Println(err)
 		return nil, err
 	}
-	return data.(*models.Products), nil
+	return data.(*[]models.Product), nil
 }
 
-func (s serviceProducts) UpdateProducts(ctx context.Context) {
-
-}
-
-func (s serviceProducts) DeleteProducts(ctx context.Context) {
-
+func (s serviceProducts) GetProduct(ctx context.Context, id string) (*models.Product, error) {
+	return nil, nil
 }

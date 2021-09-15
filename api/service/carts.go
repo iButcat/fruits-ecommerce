@@ -9,9 +9,8 @@ import (
 
 type ServiceCarts interface {
 	ListCarts(ctx context.Context, userId string) (*models.Cart, error)
-	AddCarts(ctx context.Context, cart models.Cart, userId string) (string, error)
+	AddCarts(ctx context.Context, cart models.Cart, productName, username string) (string, error)
 	UpdateCarts(ctx context.Context, id string) (bool, error)
-	DeleteCarts(ctx context.Context, id string) (bool, error)
 }
 
 type serviceCarts struct {
@@ -28,7 +27,7 @@ func NewServiceCarts(repo repository.Repository, logger log.Logger) ServiceCarts
 
 func (s serviceCarts) ListCarts(ctx context.Context, userId string) (*models.Cart, error) {
 	fields := make(map[string]interface{})
-	fields["user_id"] = userId
+	fields["username"] = userId
 	data, err := s.repository.Get(ctx, &models.Cart{}, fields)
 	if err != nil {
 		return nil, err
@@ -37,29 +36,33 @@ func (s serviceCarts) ListCarts(ctx context.Context, userId string) (*models.Car
 	return cart, nil
 }
 
-func (s serviceCarts) AddCarts(ctx context.Context, cart models.Cart, userId string) (string, error) {
-	var fields = make(map[string]interface{})
-	fields["id"] = userId
+func (s serviceCarts) AddCarts(ctx context.Context, cart models.Cart, productName, username string) (string, error) {
+	dataUser, err := s.repository.Get(ctx, &models.User{}, map[string]interface{}{"username": username})
+	if err != nil {
+		return "", err
+	}
+	user := dataUser.(*models.User)
 
-	data, err := s.repository.Get(ctx, &models.User{}, fields)
+	var fields = map[string]interface{}{"name": productName}
+	dataProduct, err := s.repository.Get(ctx, &models.Product{},
+		fields)
+	if err != nil {
+		return "", err
+	}
+	product := dataProduct.(*models.Product)
+	log.Print("PRODUCT: ", product)
+
+	cart.Username = user.Username
+	cart.Product = append(cart.Product, product)
+
+	ok, err := s.repository.Create(ctx, &cart)
 	if err != nil {
 		return "", err
 	}
 
-	user := data.(*models.User)
-	cart.User = user
-
-	created, err := s.repository.Create(ctx, &cart)
-	if err != nil {
-		return "", err
-	}
-	return created, nil
+	return ok, nil
 }
 
 func (s serviceCarts) UpdateCarts(ctx context.Context, id string) (bool, error) {
-	return true, nil
-}
-
-func (s serviceCarts) DeleteCarts(ctx context.Context, id string) (bool, error) {
 	return true, nil
 }

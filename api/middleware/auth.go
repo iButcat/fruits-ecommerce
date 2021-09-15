@@ -61,7 +61,7 @@ func CustomJwtMiddleware(controllersAuth controller.AuthController) *jwt.GinJWTM
 		// to extract token from the request.
 		// Optional. Default value "header:Authorization".
 		// Possible values:
-		// - "header:<name>"
+		// - "header:<name>"0
 		// - "query:<name>"
 		// - "cookie:<name>"
 		// - "param:<name>"

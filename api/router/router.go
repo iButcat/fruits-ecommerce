@@ -63,8 +63,6 @@ func (cr controllersRouter) NewRouter(logger log.Logger) *gin.Engine {
 		{
 			productsGroup.GET("/get", cr.productsController.GetById)
 			productsGroup.GET("/getall", cr.productsController.GetAll)
-			productsGroup.PATCH("/update", cr.productsController.Update)
-			productsGroup.DELETE("/delete", cr.productsController.Delete)
 		}
 
 		cartGroup := v1.Group("cart")

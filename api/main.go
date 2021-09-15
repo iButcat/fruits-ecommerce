@@ -43,6 +43,9 @@ func main() {
 		routerController   = router.NewControllerRouter(authController, productsController, cartController)
 	)
 
+	//noot(db)
+	//noot1(db)
+
 	errs := make(chan error)
 
 	go func() {
@@ -56,8 +59,6 @@ func main() {
 		errs <- router.Run(config.Port)
 		log.Println(errs)
 	}()
-
-	noot(db)
 
 	log.Println("exit", <-errs)
 }

@@ -7,24 +7,38 @@ import (
 	"gorm.io/gorm"
 )
 
-func initModels(db *gorm.DB, models ...interface{}) (bool, error) {
-	err := db.Debug().AutoMigrate(models...)
-	if err != nil {
-		return false, err
-	}
-
+func migrateModels(db *gorm.DB, models ...interface{}) (bool, error) {
 	for _, model := range models {
-		tx := db.Debug().Create(model)
-		if tx.Error != nil {
-			return false, tx.Error
+		if err := db.Debug().AutoMigrate(model); err != nil {
+			return false, err
 		}
 	}
+	return true, nil
+}
 
+func createBaseData(db *gorm.DB, models ...interface{}) (bool, error) {
+	for _, model := range models {
+		if err := db.Debug().Create(model).Error; err != nil {
+			return false, err
+		}
+	}
 	return true, nil
 }
 
 func noot(db *gorm.DB) {
-	ok, err := initModels(db, &models.Product{
+	ok, err := migrateModels(db,
+		&models.Product{},
+		&models.User{},
+		&models.Cart{})
+	if ok && err == nil {
+		log.Println("models has been created")
+	} else {
+		log.Println(err)
+	}
+}
+
+func noot1(db *gorm.DB) {
+	ok, err := createBaseData(db, &models.Product{
 		Name:     "bananas",
 		Price:    0.85,
 		Quantity: 99,
@@ -44,9 +58,7 @@ func noot(db *gorm.DB) {
 		Price:    0.85,
 		Quantity: 99,
 		Empty:    false,
-	},
-		&models.Products{},
-		&models.Cart{})
+	})
 	if ok && err == nil {
 		log.Println("models has been created")
 	} else {

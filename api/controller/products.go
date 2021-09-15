@@ -2,7 +2,6 @@ package controller
 
 import (
 	"ecommerce/service"
-	"encoding/json"
 	"log"
 
 	"github.com/gin-gonic/gin"
@@ -11,8 +10,6 @@ import (
 type ProductsController interface {
 	GetById(ctx *gin.Context)
 	GetAll(ctx *gin.Context)
-	Update(ctx *gin.Context)
-	Delete(ctx *gin.Context)
 }
 
 type productsController struct {
@@ -38,20 +35,4 @@ func (c productsController) GetAll(ctx *gin.Context) {
 		return
 	}
 	ctx.JSON(200, gin.H{"products": products})
-}
-
-func (c productsController) Update(ctx *gin.Context) {
-	var args = make(map[string]interface{})
-	bodyDecoder := json.NewDecoder(ctx.Request.Body)
-	if err := bodyDecoder.Decode(&args); err != nil {
-		log.Println(err)
-		ctx.JSON(400, gin.H{"error": err.Error()})
-	}
-
-	log.Println("args: ", args)
-
-}
-
-func (c productsController) Delete(ctx *gin.Context) {
-
 }
