@@ -5,13 +5,12 @@ import (
 	"ecommerce/models"
 	"ecommerce/repository"
 	"log"
-	"strconv"
 )
 
 type ServiceCarts interface {
 	ListCarts(ctx context.Context, userId string) (*models.Cart, error)
-	AddCarts(ctx context.Context, cart models.Cart, params ...string) (string, error)
-	UpdateCarts(ctx context.Context, id string) (bool, error)
+	AddCarts(ctx context.Context, userID, productName string, quantity int, price float64) (string, error)
+	UpdateCarts(ctx context.Context, id string, name string, quantity int) (bool, error)
 }
 
 type serviceCarts struct {
@@ -37,9 +36,10 @@ func (s serviceCarts) ListCarts(ctx context.Context, userId string) (*models.Car
 	return cart, nil
 }
 
-func (s serviceCarts) AddCarts(ctx context.Context, cart models.Cart, params ...string) (string, error) {
+func (s serviceCarts) AddCarts(
+	ctx context.Context, userID, productName string, quantity int, price float64) (string, error) {
 	var userParams = make(map[string]interface{})
-	userParams["username"] = params[1]
+	userParams["username"] = userID
 	dataUser, err := s.repository.Get(ctx, &models.User{}, userParams)
 	if err != nil {
 		return "", err
@@ -47,17 +47,16 @@ func (s serviceCarts) AddCarts(ctx context.Context, cart models.Cart, params ...
 	user := dataUser.(*models.User)
 
 	var cartParams = make(map[string]interface{})
-	cartParams["name"] = params[0]
-	dataProduct, err := s.repository.Get(ctx, &models.Product{}, cartParams)
-	if err != nil {
-		return "", err
-	}
+	cartParams["name"] = productName
 
-	// convert interface to model
-	product := dataProduct.(*models.Product)
-	cart.Username = user.Username
+	cart := models.Cart{}
+	product := &models.Product{
+		Name:     productName,
+		Quantity: quantity,
+		Price:    price}
 	cart.Product = append(cart.Product, product)
-	cart.Quantity, _ = strconv.Atoi(params[2])
+	cart.Quantity = quantity
+	cart.Username = user.Username
 
 	ok, err := s.repository.Create(ctx, &cart)
 	if err != nil {
@@ -67,15 +66,15 @@ func (s serviceCarts) AddCarts(ctx context.Context, cart models.Cart, params ...
 	return ok, nil
 }
 
-func (s serviceCarts) UpdateCarts(ctx context.Context, id string) (bool, error) {
+func (s serviceCarts) UpdateCarts(ctx context.Context, id string, name string, quantity int) (bool, error) {
 	var fields = make(map[string]interface{})
-	fields["id"] = 1
+	fields["username"] = id
 	data, err := s.repository.Get(ctx, &models.Cart{}, fields)
 	if err != nil {
 		return false, err
 	}
 	cart := data.(*models.Cart)
-	cart.Product = append(cart.Product, &models.Product{Name: "apple"})
+	cart.Product = append(cart.Product, &models.Product{Name: name, Quantity: quantity})
 	ok, err := s.repository.UpdateNested(ctx, &cart, &models.Cart{})
 	if err != nil {
 		return false, err
