@@ -4,6 +4,8 @@ import (
 	"context"
 	"log"
 
+	// test
+
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -14,7 +16,8 @@ type Repository interface {
 	GetRows(ctx context.Context, models interface{}) (interface{}, error)
 	Get(ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error)
 	GetAll(ctx context.Context, models interface{}) (interface{}, error)
-	Update(ctx context.Context, models interface{}, fields map[string]interface{}) (bool, error)
+	Update(ctx context.Context, models interface{}, id string, fields map[string]interface{}) (bool, error)
+	UpdateNested(ctx context.Context, models interface{}, nested interface{}) (bool, error)
 	Delete(ctx context.Context, models interface{}, id string) (bool, error)
 }
 
@@ -32,7 +35,11 @@ func NewRepo(db *gorm.DB, logger log.Logger) Repository {
 
 // Create data from any given models
 func (repo *repo) Create(ctx context.Context, models interface{}) (string, error) {
-	tx := repo.db.Omit(clause.Associations).Create(models)
+	if err := repo.db.Model(models).Error; err != nil {
+		return "", err
+	}
+
+	tx := repo.db.Create(models)
 	if tx.Error != nil {
 		return "err while creating models: ", tx.Error
 	}
@@ -53,7 +60,9 @@ func (repo *repo) GetRows(ctx context.Context, models interface{}) (interface{},
 }
 
 // Get data from different fields like id, username, password, etc...
-func (repo *repo) Get(ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error) {
+func (repo *repo) Get(
+	ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error) {
+	log.Println("FIELDS REPO: ", fields)
 	if err := repo.db.Where(fields).Preload(clause.Associations).Find(models).Error; err != nil {
 		return nil, err
 	}
@@ -69,11 +78,20 @@ func (repo *repo) GetAll(ctx context.Context, models interface{}) (interface{}, 
 }
 
 // update any given models with their column and values that need to be change
-func (repo *repo) Update(ctx context.Context, models interface{}, fields map[string]interface{}) (bool, error) {
+func (repo *repo) Update(
+	ctx context.Context, models interface{}, id string, fields map[string]interface{}) (bool, error) {
 	for index, value := range fields {
-		if err := repo.db.Model(models).Update(index, value).Error; err != nil {
+		if err := repo.db.Model(models).Where("id = ?", id).Update(index, value).Error; err != nil {
 			return false, err
 		}
+	}
+	return true, nil
+}
+
+func (repo *repo) UpdateNested(
+	ctx context.Context, models interface{}, nested interface{}) (bool, error) {
+	if err := repo.db.Debug().Save(models).Error; err != nil {
+		return false, err
 	}
 	return true, nil
 }

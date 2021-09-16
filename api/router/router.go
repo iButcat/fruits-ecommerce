@@ -70,6 +70,7 @@ func (cr controllersRouter) NewRouter(logger log.Logger) *gin.Engine {
 		{
 			cartGroup.POST("/add", cr.cartController.Add)
 			cartGroup.GET("/list", cr.cartController.List)
+			cartGroup.PUT("/update", cr.cartController.Update)
 		}
 	}
 	return router
