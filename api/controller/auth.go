@@ -106,7 +106,6 @@ func (c authController) Login(ctx *gin.Context) (interface{}, error) {
 		return nil, jwt.ErrFailedAuthentication
 	}
 
-	ctx.JSON(200, gin.H{"logged": true})
 	return &userRepo, nil
 }
 
