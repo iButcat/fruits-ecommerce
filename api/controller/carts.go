@@ -31,13 +31,6 @@ func NewCartController(service service.ServiceCarts, logger log.Logger) CartCont
 	}
 }
 
-var productPrice = map[string]float64{
-	"apple":   0.70,
-	"bananas": 0.85,
-	"oranges": 0.67,
-	"pears":   0.85,
-}
-
 func (c cartController) Add(ctx *gin.Context) {
 	var addRequestBody struct {
 		ProductName string `json:"product_name"`
@@ -53,13 +46,12 @@ func (c cartController) Add(ctx *gin.Context) {
 
 	quantity := addRequestBody.Quantity
 	productName := addRequestBody.ProductName
-	price := productPrice[productName] * float64(quantity)
 
 	claims := jwt.ExtractClaims(ctx)
 
 	userID := claims["id"].(string)
 
-	success, err := c.service.AddCarts(ctx, userID, productName, quantity, price)
+	success, err := c.service.AddCarts(ctx, userID, productName, quantity)
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(400, gin.H{"error": err.Error()})
