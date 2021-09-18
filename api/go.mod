@@ -61,4 +61,7 @@ require (
 	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 // indirect
 )
 
-require github.com/appleboy/gin-jwt v2.5.0+incompatible
+require (
+	github.com/appleboy/gin-jwt v2.5.0+incompatible
+	github.com/gin-contrib/cors v1.3.1
+)
