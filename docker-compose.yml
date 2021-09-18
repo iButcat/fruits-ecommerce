@@ -18,5 +18,22 @@ services:
       - "8080:8080"
     depends_on: 
       - db-ecommerce
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    volumes: 
+      - ./api
     volumes:
       - ./postgres/postgres:/var/lib/postgresql/data
+
+  ecommerce-client:
+    container_name: client
+    build: ./client
+    environment:
+      CHOKIDAR_USEPOLLING: "true"
+    volumes: 
+      - './client:/client/'
+      - '/client/node_modules'
+    depends_on: 
+      - ecommerce-api
+    ports:
+      - 3000:3000
