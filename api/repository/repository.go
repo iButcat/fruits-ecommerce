@@ -17,7 +17,7 @@ type Repository interface {
 	Get(ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error)
 	GetAll(ctx context.Context, models interface{}) (interface{}, error)
 	Update(ctx context.Context, models interface{}, id string, fields map[string]interface{}) (bool, error)
-	UpdateNested(ctx context.Context, models interface{}, nested interface{}) (bool, error)
+	UpdateNested(ctx context.Context, models interface{}) (bool, error)
 	Delete(ctx context.Context, models interface{}, id string) (bool, error)
 }
 
@@ -88,8 +88,7 @@ func (repo *repo) Update(
 	return true, nil
 }
 
-func (repo *repo) UpdateNested(
-	ctx context.Context, models interface{}, nested interface{}) (bool, error) {
+func (repo *repo) UpdateNested(ctx context.Context, models interface{}) (bool, error) {
 	if err := repo.db.Debug().Save(models).Error; err != nil {
 		return false, err
 	}
