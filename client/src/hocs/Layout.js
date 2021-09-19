@@ -1,11 +1,11 @@
 import React from 'react';
 import Footer from '../components/Footer';
-import Navbar from '../components/Navbar';
+import NavbarI from '../components/Navbar';
 
 function Layout(props) {
     return (
         <div>
-            <Navbar/>
+            <NavbarI/>
                 {props.children}
             <Footer/>
         </div>

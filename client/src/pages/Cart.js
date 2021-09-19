@@ -1,12 +1,14 @@
 import React, { useEffect, useState } from 'react';
 
 import axios from 'axios';
+import { Container } from 'react-bootstrap';
 
 function Cart() {
     const [cart, setCart] = useState([]);
 
     const getCart = () => {
-        var token = localStorage.getItem('token'); 
+        var token = JSON.parse(localStorage.getItem('token'));
+
         console.log(token);
         var config = {
             headers: { Authorization: `Bearer ${token}` }
@@ -20,14 +22,16 @@ function Cart() {
     }, []);
 
     return (
-        <div className="cart">
+        <Container>
+            <div className="cart">
             {cart.length > 0 && cart.map(cart => (
                 <div key={cart.ID}>
                     <h1>{cart.products}</h1>
                     <p>{cart.quantity}</p>
                 </div>
             ))}
-        </div>
+            </div>
+        </Container>
     );
 }
 

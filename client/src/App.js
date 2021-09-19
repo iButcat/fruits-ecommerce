@@ -1,7 +1,8 @@
 import { Fragment } from 'react';
-import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import Layout from './hocs/Layout';
 import Cart from './pages/Cart';
 import Home from './pages/Home';

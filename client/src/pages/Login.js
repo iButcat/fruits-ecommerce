@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 
 import axios from 'axios';
+import { Container, Form, Button } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -26,26 +28,34 @@ function Login() {
         .catch((err) => console.log(err));
     }
     return (
-        <div className="login">
-            {isLogged 
-            ? <h1>Already logged in</h1>
-            : <form onSubmit={handleSubmit}>
-            <label>
-                <input 
-                placeholder="Username" 
-                type="text" value={username} 
-                onChange={e => setUsername(e.target.value)} />
-            </label>
-            <label>
-                <input 
-                placeHolder="Password" 
-                type="password" value={password} 
-                onChange={e => setPassword(e.target.value)} />
-            </label>
-            <input type="submit" value="Submit" />
-            </form>
-            }
-        </div>
+        <Container>
+            <div className="login">
+                {isLogged 
+                ? <h1>Already logged in</h1>
+                : <Form onSubmit={handleSubmit}>
+                <Form.Group className="mb-3" controlId="formBasicUsername">
+                    <Form.Label>Username</Form.Label>
+                    <Form.Control type="username" placeholder="Enter username" 
+                    value={username} 
+                    onChange={e => setUsername(e.target.value)} />
+                </Form.Group>
+
+                <Form.Group className="mb-3" controlId="formBasicPassword">
+                    <Form.Label>Password</Form.Label>
+                    <Form.Control 
+                    type="password" 
+                    placeholder="Password" 
+                    value={password} 
+                    onChange={e => setPassword(e.target.value)} />
+                </Form.Group>
+                <Button variant="primary" type="submit">
+                    Submit
+                    {isLogged ? <Link to="home" /> : <Link/>}
+                </Button>
+                </Form>
+                }
+            </div>
+        </Container>
     );
 }
 
