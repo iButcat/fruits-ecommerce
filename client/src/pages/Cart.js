@@ -5,11 +5,11 @@ import { Container } from 'react-bootstrap';
 
 function Cart() {
     const [cart, setCart] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
 
     const getCart = () => {
         var token = JSON.parse(localStorage.getItem('token'));
 
-        console.log(token);
         var config = {
             headers: { Authorization: `Bearer ${token}` }
         };
@@ -19,17 +19,24 @@ function Cart() {
     useEffect(() => {
         getCart().then((response) => setCart(response.data.cart))
         .catch((error) => console.log(error));
+        if (cart.length !== 0) {
+            setIsLoading(true);
+        }
     }, []);
+
 
     return (
         <Container>
             <div className="cart">
-            {cart.length > 0 && cart.map(cart => (
-                <div key={cart.ID}>
-                    <h1>{cart.products}</h1>
-                    <p>{cart.quantity}</p>
+            <h1>{cart.username}</h1>
+            {isLoading && cart.products.length > 0 && cart.products.foreach((product, id) => {
+                {console.log(product)}
+                <div key={id}>
+                    <h1>{product.ID}</h1>
+                    <h1>{product.name}</h1>
+                    <p>{product.price}</p>
                 </div>
-            ))}
+            })}
             </div>
         </Container>
     );

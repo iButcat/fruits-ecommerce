@@ -1,26 +1,34 @@
 import React, { useState, useEffect } from 'react';
 
 import axios from 'axios';
-import { Container, Card, Button } from 'react-bootstrap';
+import { Container, Card, Button, Form } from 'react-bootstrap';
 
 function Products() {
-    const [products, setProducts] = useState([]);;
+    const [products, setProducts] = useState([]);
     const [productToAdd, setProductToAdd] = useState({
+        ID: 0,
         name: "",
-        quantityCard: 0,
+        price: 0.00,
+        q: 0,
     });
+    const [quantity, setQuantity] = useState(0);
 
-    const incrementQuantity = () => {}
-
-    const addToCart = (e, i) => {
-        const product = products;
-        console.log("product name: ", product[i].name);
+    const addToCart = id => {
+        let product = products;
         setProductToAdd({
-            id: i,
-            name: product[i].name,
-            quantityCard: 0
+            ID: product[id].ID,
+            name: product[id].name,
+            price: product[id].price,
+            q: quantity
         });
-        return productToAdd;
+        console.log(productToAdd);
+
+        var token = JSON.parse(localStorage.getItem('token'));
+
+        var config = {
+            headers: { Authorization: `Bearer ${token}` }
+        };
+        return axios.post('http://localhost:8080/v1/cart/add', productToAdd, config);
     };
     
 
@@ -47,13 +55,16 @@ function Products() {
                             <p>Price: {product.price}</p>
                             <p>Quantity: {product.quantity}</p>
                       </Card.Text>
-                      <Button 
-                      variant="primary"
-                      onClick={(e) => addToCart(e,id)}>
-                          {product.quantityCard}
-                        </Button>
-                      <Button variant="primary" 
-                      onClick={(e) => incrementQuantity(e, id)}>Add to cart</Button>
+                      <Form>
+                        <Form.Group className="mb-3" controlId="formBasicQuantity">
+                            <Form.Control type="quantity" placeholder="Quantity" 
+                            value={quantity} 
+                            onChange={e => setQuantity(e.target.value)} />
+                        </Form.Group>
+                        <Button 
+                        onClick={() => addToCart(id)}
+                        variant="primary">Add to cart</Button>
+                        </Form>
                     </Card.Body>
                   </Card>
                 </div>
