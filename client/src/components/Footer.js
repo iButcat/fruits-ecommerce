@@ -3,7 +3,7 @@ import { Container } from 'react-bootstrap';
 
 function Footer() {
     return (
-        <Container>
+        <Container style={{padding: 30}}>
             <h1>Footer</h1>
         </Container>
     );
