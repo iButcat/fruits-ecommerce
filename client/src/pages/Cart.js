@@ -5,6 +5,7 @@ import { Container } from 'react-bootstrap';
 
 function Cart() {
     const [cart, setCart] = useState([]);
+    const [products, setProducts] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
 
     const getCart = () => {
@@ -21,7 +22,10 @@ function Cart() {
         .catch((error) => console.log(error));
         if (cart.length !== 0) {
             setIsLoading(true);
+        } else {
+            return;
         }
+        setProducts(cart.products)
     }, []);
 
 
@@ -29,12 +33,11 @@ function Cart() {
         <Container>
             <div className="cart">
             <h1>{cart.username}</h1>
-            {isLoading && cart.products.length > 0 && cart.products.foreach((product, id) => {
-                {console.log(product)}
-                <div key={id}>
-                    <h1>{product.ID}</h1>
-                    <h1>{product.name}</h1>
-                    <p>{product.price}</p>
+            {isLoading && products.length > 0 && products.forEach((product) => {
+                <div key={product.ID}>
+                    {console.log("PRODUCT: ", product)}
+                    <h1>Name: {product.name}</h1>
+                    <p>Created: {product.CreatedAt}</p>
                 </div>
             })}
             </div>

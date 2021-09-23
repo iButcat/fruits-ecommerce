@@ -7,9 +7,9 @@ function Products() {
     const [products, setProducts] = useState([]);
     const [productToAdd, setProductToAdd] = useState({
         ID: 0,
-        name: "",
+        product_name: "",
         price: 0.00,
-        q: 0,
+        quantity: 0,
     });
     const [quantity, setQuantity] = useState(0);
 
@@ -17,9 +17,9 @@ function Products() {
         let product = products;
         setProductToAdd({
             ID: product[id].ID,
-            name: product[id].name,
+            product_name: product[id].name,
             price: product[id].price,
-            q: quantity
+            quantity: quantity
         });
         console.log(productToAdd);
 
@@ -28,7 +28,10 @@ function Products() {
         var config = {
             headers: { Authorization: `Bearer ${token}` }
         };
-        return axios.post('http://localhost:8080/v1/cart/add', productToAdd, config);
+        console.log(productToAdd);
+        axios.post('http://localhost:8080/v1/cart/add', productToAdd, config)
+        .then(response => console.log(response.data));
+        return console.log("done");
     };
     
 

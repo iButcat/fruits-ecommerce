@@ -28,7 +28,7 @@ function Login() {
         .catch((err) => console.log(err));
     }
     return (
-        <Container>
+        <Container style={{padding: 20}}>
             <div className="login">
                 {isLogged 
                 ? <h1>Already logged in</h1>
