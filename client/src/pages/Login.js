@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import axios from 'axios';
 import { Container, Form, Button } from 'react-bootstrap';
@@ -18,28 +18,31 @@ function Login() {
             }))
         .then(response => {
             if (response.status === 200) {
-                setIsLogged(true);
-                localStorage.setItem('logged', JSON.stringify(isLogged));
                 localStorage.setItem('token', JSON.stringify(response.data.token));
             } else {
                 return "wrong login credentials";
             }
+            localStorage.setItem('logged', JSON.stringify(isLogged));
+            setIsLogged(true);
         })
         .catch((err) => console.log(err));
     }
+
+    useEffect(() => {
+        console.log('UPDATE LOGGED: ', isLogged);
+        localStorage.setItem('logged', JSON.stringify(isLogged));
+    }, [isLogged]);
+
     return (
         <Container style={{padding: 20}}>
             <div className="login">
-                {isLogged 
-                ? <h1>Already logged in</h1>
-                : <Form onSubmit={handleSubmit}>
+                <Form onSubmit={handleSubmit}>
                 <Form.Group className="mb-3" controlId="formBasicUsername">
                     <Form.Label>Username</Form.Label>
                     <Form.Control type="username" placeholder="Enter username" 
                     value={username} 
                     onChange={e => setUsername(e.target.value)} />
                 </Form.Group>
-
                 <Form.Group className="mb-3" controlId="formBasicPassword">
                     <Form.Label>Password</Form.Label>
                     <Form.Control 
@@ -49,11 +52,9 @@ function Login() {
                     onChange={e => setPassword(e.target.value)} />
                 </Form.Group>
                 <Button variant="primary" type="submit">
-                    Submit
-                    {isLogged ? <Link to="home" /> : <Link/>}
+                    {isLogged ? <Link to="home" style={{ textDecoration: 'none' }}>Submit</Link> : <Link/>}
                 </Button>
                 </Form>
-                }
             </div>
         </Container>
     );
