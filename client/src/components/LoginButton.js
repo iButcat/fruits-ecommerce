@@ -1,9 +1,10 @@
 import React from 'react';
+import { Nav } from 'react-bootstrap';
 
 function LoginButton() {
     return (
         <button className="LoginButton">
-            <Link to="/login">Login</Link>
+            <Nav.Link to="/login">Login</Nav.Link>
         </button>
     );
 }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from 'react-bootstrap';
+import { Button, Nav } from 'react-bootstrap';
  
 function LogoutButton() {
     
@@ -12,11 +12,9 @@ function LogoutButton() {
     };
 
     return (
-        <Button onClick={(e) => handleOnClick(e)}>
-            <Link to="/home" style={{ textDecoration: 'none' }} >
+        <Nav.Link onClick={(e) => handleOnClick(e)} to="/home">
             Logout
-            </Link>
-        </Button>
+        </Nav.Link>
     );
 }
 
