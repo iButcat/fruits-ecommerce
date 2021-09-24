@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
 import axios from 'axios';
-import { Container, Card, Button, Form } from 'react-bootstrap';
+import { Container, Card, Button, Form, Row, Col } from 'react-bootstrap';
 
 function Products() {
     const [products, setProducts] = useState([]);
@@ -48,8 +48,9 @@ function Products() {
         <Container>
             <div className="products">
                 <h1>Products</h1>
+                <Row xs={12} sm={12} md={4}>
                 {products.length > 0 && products.map((product, id) => (
-                    <div key={id}>
+                    <Col key={id}>
                     <Card style={{ width: '18rem' }}>
                     <Card.Img variant="top" src="holder.js/100px180" />
                     <Card.Body>
@@ -70,8 +71,9 @@ function Products() {
                         </Form>
                     </Card.Body>
                   </Card>
-                </div>
+                </Col>
                 ))}
+                </Row>
             </div>
         </Container>
     );
