@@ -14,32 +14,38 @@ function Cart() {
         var config = {
             headers: { Authorization: `Bearer ${token}` }
         };
-        return axios.get('http://localhost:8080/v1/cart/list', config);
-    };
-
-    useEffect(() => {
-        getCart().then((response) => setCart(response.data.cart))
+        axios.get('http://localhost:8080/v1/cart/list', config)
+        .then((response) => setCart(response.data.cart))
         .catch((error) => console.log(error));
         if (cart.length !== 0) {
             setIsLoading(true);
         } else {
             return;
         }
-        setProducts(cart.products)
-    }, []);
+        setProducts(products => cart.products);
+    };
+
+    useEffect(() => {
+        getCart();
+        console.log('UPDATE PRODUCTS: ', products)
+    }, [products]);
 
 
     return (
         <Container>
             <div className="cart">
             <h1>{cart.username}</h1>
-            {isLoading && products.length > 0 && products.forEach((product) => {
-                <div key={product.ID}>
-                    {console.log("PRODUCT: ", product)}
+            {products.length !== null && products.length !== 0 ?             
+            isLoading && products.map((product, id) => {
+                return (
+                <div key={id}>
                     <h1>Name: {product.name}</h1>
                     <p>Created: {product.CreatedAt}</p>
                 </div>
-            })}
+                );
+            }) :
+            <h1>Cart is empty</h1>
+            }
             </div>
         </Container>
     );
