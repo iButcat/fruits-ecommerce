@@ -9,7 +9,7 @@ function Cart() {
     const [isLoading, setIsLoading] = useState(false);
 
     const getCart = () => {
-        var token = JSON.parse(localStorage.getItem('token'));
+        var token = localStorage.getItem('token');
 
         var config = {
             headers: { Authorization: `Bearer ${token}` }
@@ -23,10 +23,10 @@ function Cart() {
             return;
         }
         setProducts(products => cart.products);
+        getCart();
     };
 
     useEffect(() => {
-        getCart();
         console.log('UPDATE PRODUCTS: ', products)
     }, [products]);
 
@@ -40,10 +40,11 @@ function Cart() {
                 return (
                 <div key={id}>
                     <h1>Name: {product.name}</h1>
-                    <p>Created: {product.CreatedAt}</p>
+                    <p>Quantity: {product.quantity}</p>
+                    <p>Price: {product.price}</p>
                 </div>
                 );
-            }) :
+            }):
             <h1>Cart is empty</h1>
             }
             </div>
