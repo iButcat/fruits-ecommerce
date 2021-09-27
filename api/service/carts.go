@@ -6,7 +6,10 @@ import (
 	"ecommerce/repository"
 	"ecommerce/utils"
 	"errors"
+	"fmt"
 	"log"
+	"strconv"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -39,11 +42,21 @@ var productPrice = map[string]float64{
 func (s serviceCarts) ListCarts(ctx context.Context, userId string) (*models.Cart, error) {
 	fields := make(map[string]interface{})
 	fields["username"] = userId
-	data, err := s.repository.Get(ctx, &models.Cart{}, fields)
+	cartData, err := s.repository.Get(ctx, &models.Cart{}, fields)
 	if err != nil {
 		return nil, err
 	}
-	cart := data.(*models.Cart)
+	cart := cartData.(*models.Cart)
+
+	cartItemData, err := s.repository.FindAll(ctx, &[]models.CartItem{}, fmt.Sprint("cart_id = ", cart.ID))
+	if err != nil {
+		return nil, err
+	}
+	cartItem := cartItemData.(*[]models.CartItem)
+	log.Println("CART ITEM: ", cartItem)
+
+	cart.CartItems = append(cart.CartItems, *cartItem...)
+
 	return cart, nil
 }
 
@@ -60,15 +73,26 @@ func (s serviceCarts) AddCarts(
 	var cartParams = make(map[string]interface{})
 	cartParams["name"] = productName
 
-	price := productPrice[productName] * float64(quantity)
+	totalPrice := productPrice[productName] * float64(quantity)
 
 	cart := models.Cart{}
-	product := &models.Product{
-		Name:     productName,
-		Quantity: quantity,
-		Price:    price,
+
+	var fields = make(map[string]interface{})
+	fields["name"] = productName
+	dataProduct, err := s.repository.Get(ctx, &models.Product{}, fields)
+	if err != nil {
+		return "err while querying product: ", err
 	}
-	cart.Product = append(cart.Product, product)
+	product := dataProduct.(*models.Product)
+
+	cartItem := models.CartItem{
+		CartID:     cart.ID,
+		ProductID:  product.ID,
+		Name:       product.Name,
+		Quantity:   quantity,
+		TotalPrice: totalPrice,
+	}
+	cart.CartItems = append(cart.CartItems, cartItem)
 	cart.Quantity = quantity
 	cart.Username = user.Username
 
@@ -80,7 +104,7 @@ func (s serviceCarts) AddCarts(
 	return ok, nil
 }
 
-func (s serviceCarts) UpdateCarts(ctx context.Context, id string, name string, quantity int) (bool, error) {
+func (s serviceCarts) UpdateCarts(ctx context.Context, id string, cartID string, quantity int) (bool, error) {
 	var fields = make(map[string]interface{})
 	fields["username"] = id
 	data, err := s.repository.Get(ctx, &models.Cart{}, fields)
@@ -88,34 +112,57 @@ func (s serviceCarts) UpdateCarts(ctx context.Context, id string, name string, q
 		return false, err
 	}
 	cart := data.(*models.Cart)
+	log.Println("CART GET IN UPDATE", cart)
 
 	var errNoUserFound = errors.New("no cart found for user:" + cart.Username)
 	if len(cart.Username) == 0 {
 		return false, errNoUserFound
 	}
-	price := productPrice[name] * float64(quantity)
-	cartUpdated := &models.Product{
-		Model:    gorm.Model{ID: 5},
-		Name:     name,
-		Quantity: 18,
-		Price:    price,
+	price := productPrice["apple"] * float64(quantity)
+	u64, err := strconv.ParseUint(cartID, 10, 32)
+	if err != nil {
+		log.Println(err)
 	}
-	price = utils.CalculateDiscountBanana(quantity, cartUpdated.Price)
+	productUpdated := models.Product{
+		Model: gorm.Model{ID: uint(u64)},
+		Name:  "bananas",
+		Price: price,
+	}
+	cartUpdated := models.Cart{
+		Model:      gorm.Model{ID: cart.ID},
+		Quantity:   3,
+		TotalPrice: 1000,
+		Username:   cart.Username,
+	}
+	price = utils.CalculateDiscountBanana(quantity, productUpdated.Price)
 
 	var field = make(map[string]interface{})
-	for _, value := range cart.Product {
-		if value.ID == cartUpdated.ID {
-			field["quantity"] = cartUpdated.Quantity
+	for _, value := range cart.CartItems {
+		if value.Name == productUpdated.Name {
+			log.Println("BUG HERE ONE")
 			field["price"] = price
-			s.repository.Update(ctx, value, "5", field)
+			s.repository.Update(ctx, &value, fmt.Sprint(value.ID), field)
 			break
 		} else {
-			cart.Product = append(cart.Product, cartUpdated)
-			ok, err := s.repository.UpdateNested(ctx, &cart)
+			log.Println("BUG HERE TWO")
+			cartUpdated.CartItems = append(cartUpdated.CartItems, cart.CartItems...)
+			ok, err := s.repository.AppendNested(ctx, &cart, []models.CartItem{
+				{
+					Model: gorm.Model{
+						ID:        6,
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					},
+					CartID:     1,
+					ProductID:  4,
+					Name:       "oranges",
+					Quantity:   12121212,
+					TotalPrice: 1111212.34444,
+				},
+			})
 			if err != nil {
 				return false, err
 			}
-			log.Println("HERE2")
 			log.Println(ok)
 		}
 	}
