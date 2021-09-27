@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 import axios from 'axios';
 import { Container, Card, Button, Form, Row, Col } from 'react-bootstrap';
@@ -12,8 +12,13 @@ function Products() {
         quantity: 0,
     });
     const [quantity, setQuantity] = useState(0);
+    const quantityRef = useRef(0);
 
-    const addToCart = id => {
+    const addQuantity = (event) => {
+        setQuantity(event.target.value);
+    };
+
+    const addToCart = (id) => {
         let product = products;
         setProductToAdd({
             ID: product[id].ID,
@@ -21,9 +26,8 @@ function Products() {
             price: product[id].price,
             quantity: quantity
         });
-        console.log(productToAdd);
 
-        var token = JSON.parse(localStorage.getItem('token'));
+        var token = localStorage.getItem('token');
 
         var config = {
             headers: { Authorization: `Bearer ${token}` }
@@ -31,7 +35,6 @@ function Products() {
         console.log(productToAdd);
         axios.post('http://localhost:8080/v1/cart/add', productToAdd, config)
         .then(response => console.log(response.data));
-        return console.log("done");
     };
     
 
@@ -57,13 +60,12 @@ function Products() {
                       <Card.Title>{product.name}</Card.Title>
                       <Card.Text>
                             <p>Price: {product.price}</p>
-                            <p>Quantity: {product.quantity}</p>
                       </Card.Text>
                       <Form>
                         <Form.Group className="mb-3" controlId="formBasicQuantity">
                             <Form.Control type="quantity" placeholder="Quantity" 
-                            value={quantity} 
-                            onChange={e => setQuantity(e.target.value)} />
+                            ref={quantityRef} 
+                            onChange={e => addQuantity(e)} />
                         </Form.Group>
                         <Button 
                         onClick={() => addToCart(id)}

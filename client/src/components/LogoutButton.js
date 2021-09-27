@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Nav } from 'react-bootstrap';
+import React, { useEffect, refetch } from 'react';
+import { Nav, Button } from 'react-bootstrap';
+import { Redirect } from 'react-router-dom';
  
 function LogoutButton() {
     
@@ -9,11 +9,20 @@ function LogoutButton() {
         localStorage.removeItem('token');
         localStorage.setItem('logged', JSON.stringify(false));
         console.log("LOGGED: ", localStorage.getItem('logged'));
+        return <Redirect to="/home" />;
     };
 
+    useEffect(() => {
+        window.addEventListener("storage", () => {
+            refetch();
+        });
+    });
+
     return (
-        <Nav.Link onClick={(e) => handleOnClick(e)} to="/home">
-            Logout
+        <Nav.Link onClick={(e) => handleOnClick(e)}>
+             <Button variant="primary" type="submit">
+                 Logout
+             </Button>
         </Nav.Link>
     );
 }

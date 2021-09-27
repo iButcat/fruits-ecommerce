@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 
 import axios from 'axios';
 import { Container, Form, Button } from 'react-bootstrap';
-
+import { Redirect } from 'react-router-dom';
+ 
 function Register() {
     const [email, setEmail] = useState("");
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [registred, setRegistred] = useState(null);
 
     const clearWhenSubmit = () => {
         setUsername("");
@@ -24,8 +26,13 @@ function Register() {
             }))
         .then(response => {
             if (response.status === 201) {
+                setRegistred(registred => true);
                 clearWhenSubmit();
-            } 
+                return registred
+            } else {
+                setRegistred(registred => false);
+                return registred
+            }
         })
         .catch((err) => console.log(err));
     }
@@ -61,8 +68,9 @@ function Register() {
                     onChange={e => setPassword(e.target.value)} />
                 </Form.Group>
                 <Button variant="primary" type="submit">
-                    Submit
+                Submit
                 </Button>
+                    {registred ? <Redirect to="login" /> : ""}
             </Form>
         </Container>
     );
