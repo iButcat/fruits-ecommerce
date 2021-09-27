@@ -60,7 +60,6 @@ function Products() {
                       <Card.Title>{product.name}</Card.Title>
                       <Card.Text>
                             <p>Price: {product.price}</p>
-                            <p>Quantity: {product.quantity}</p>
                       </Card.Text>
                       <Form>
                         <Form.Group className="mb-3" controlId="formBasicQuantity">

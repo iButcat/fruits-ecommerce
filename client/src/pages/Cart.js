@@ -39,7 +39,6 @@ function Cart() {
                 return (
                 <div key={id}>
                     <h1>Name: {product.name}</h1>
-                    <p>Quantity: {product.quantity}</p>
                     <p>Price: {product.price}</p>
                 </div>
                 );
