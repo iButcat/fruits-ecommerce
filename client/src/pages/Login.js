@@ -1,8 +1,8 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, refetch } from 'react';
 
 import axios from 'axios';
 import { Container, Form, Button } from 'react-bootstrap';
-import { Link } from 'react-router-dom';
+import { Redirect, Link } from 'react-router-dom';
 
 function Login() {
     const [username, setUsername] = useState("");
@@ -18,7 +18,7 @@ function Login() {
             }))
         .then(response => {
             if (response.status === 200) {
-                localStorage.setItem('token', JSON.stringify(response.data.token));
+                localStorage.setItem('token', response.data.token);
             } else {
                 return "wrong login credentials";
             }
@@ -29,6 +29,10 @@ function Login() {
     }
 
     useEffect(() => {
+        window.addEventListener("storage", () => {
+            refetch();
+        });
+
         console.log('UPDATE LOGGED: ', isLogged);
         localStorage.setItem('logged', JSON.stringify(isLogged));
     }, [isLogged]);
@@ -52,7 +56,7 @@ function Login() {
                     onChange={e => setPassword(e.target.value)} />
                 </Form.Group>
                 <Button variant="primary" type="submit">
-                    {isLogged ? <Link to="home" style={{ textDecoration: 'none' }}>Submit</Link> : <Link/>}
+                    {isLogged ? <Redirect to="/home" style={{ textDecoration: 'none' }}>Submit</Redirect> : <Link/>}
                 </Button>
                 </Form>
             </div>
