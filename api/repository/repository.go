@@ -14,9 +14,9 @@ type Repository interface {
 	GetRows(ctx context.Context, models interface{}) (interface{}, error)
 	Get(ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error)
 	GetAll(ctx context.Context, models interface{}) (interface{}, error)
+	First(ctx context.Context, models interface{}, id string) (interface{}, error)
 	FindAll(ctx context.Context, models interface{}, query string) (interface{}, error)
 	Update(ctx context.Context, models interface{}, id string, fields map[string]interface{}) (bool, error)
-	AppendNested(ctx context.Context, models interface{}, modelToAppend interface{}) (bool, error)
 	Delete(ctx context.Context, models interface{}, id string) (bool, error)
 }
 
@@ -68,6 +68,13 @@ func (repo *repo) Get(
 	return models, nil
 }
 
+func (repo *repo) First(ctx context.Context, models interface{}, id string) (interface{}, error) {
+	if err := repo.db.Preload(clause.Associations).First(models, id).Error; err != nil {
+		return nil, err
+	}
+	return models, nil
+}
+
 // Get all model with association (nested model)
 func (repo *repo) GetAll(ctx context.Context, models interface{}) (interface{}, error) {
 	if err := repo.db.Preload(clause.Associations).Find(models).Error; err != nil {
@@ -88,18 +95,9 @@ func (repo *repo) FindAll(ctx context.Context, models interface{}, query string)
 func (repo *repo) Update(
 	ctx context.Context, models interface{}, id string, fields map[string]interface{}) (bool, error) {
 	for index, value := range fields {
-		if err := repo.db.Model(models).Where("id = ?", id).Update(index, value).Error; err != nil {
+		if err := repo.db.Debug().Model(models).Where("id = ?", id).Update(index, value).Error; err != nil {
 			return false, err
 		}
-	}
-	return true, nil
-}
-
-func (repo *repo) AppendNested(ctx context.Context, models interface{}, modelToAppend interface{}) (bool, error) {
-	if err := repo.db.Debug().Session(&gorm.Session{
-		AllowGlobalUpdate: true,
-	}).Model(models).Association("ID").Append(modelToAppend); err != nil {
-		return false, err
 	}
 	return true, nil
 }
