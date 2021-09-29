@@ -20,11 +20,11 @@ type CartController interface {
 }
 
 type cartController struct {
-	service service.ServiceCarts
+	service service.CartsService
 	logger  log.Logger
 }
 
-func NewCartController(service service.ServiceCarts, logger log.Logger) CartController {
+func NewCartController(service service.CartsService, logger log.Logger) CartController {
 	return &cartController{
 		service: service,
 		logger:  logger,
