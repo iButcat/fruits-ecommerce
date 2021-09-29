@@ -13,11 +13,11 @@ type ProductsController interface {
 }
 
 type productsController struct {
-	service service.ServiceProducts
+	service service.ProductsService
 	logger  log.Logger
 }
 
-func NewProductsController(service service.ServiceProducts, logger log.Logger) ProductsController {
+func NewProductsController(service service.ProductsService, logger log.Logger) ProductsController {
 	return &productsController{
 		service: service,
 		logger:  logger,

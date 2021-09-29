@@ -4,8 +4,6 @@ import (
 	"context"
 	"log"
 
-	// test
-
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -16,8 +14,9 @@ type Repository interface {
 	GetRows(ctx context.Context, models interface{}) (interface{}, error)
 	Get(ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error)
 	GetAll(ctx context.Context, models interface{}) (interface{}, error)
+	First(ctx context.Context, models interface{}, id string) (interface{}, error)
+	FindAll(ctx context.Context, models interface{}, query string) (interface{}, error)
 	Update(ctx context.Context, models interface{}, id string, fields map[string]interface{}) (bool, error)
-	UpdateNested(ctx context.Context, models interface{}) (bool, error)
 	Delete(ctx context.Context, models interface{}, id string) (bool, error)
 }
 
@@ -59,7 +58,7 @@ func (repo *repo) GetRows(ctx context.Context, models interface{}) (interface{},
 	return models, nil
 }
 
-// Get data from different fields like id, username, password, etc...
+// Get data from different query fields
 func (repo *repo) Get(
 	ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error) {
 	log.Println("FIELDS REPO: ", fields)
@@ -69,9 +68,24 @@ func (repo *repo) Get(
 	return models, nil
 }
 
-// Get All
+func (repo *repo) First(ctx context.Context, models interface{}, id string) (interface{}, error) {
+	if err := repo.db.Preload(clause.Associations).First(models, id).Error; err != nil {
+		return nil, err
+	}
+	return models, nil
+}
+
+// Get all model with association (nested model)
 func (repo *repo) GetAll(ctx context.Context, models interface{}) (interface{}, error) {
 	if err := repo.db.Preload(clause.Associations).Find(models).Error; err != nil {
+		return nil, err
+	}
+	return models, nil
+}
+
+// find any given model with a query
+func (repo *repo) FindAll(ctx context.Context, models interface{}, query string) (interface{}, error) {
+	if err := repo.db.Where(query).Find(models).Error; err != nil {
 		return nil, err
 	}
 	return models, nil
@@ -81,16 +95,9 @@ func (repo *repo) GetAll(ctx context.Context, models interface{}) (interface{}, 
 func (repo *repo) Update(
 	ctx context.Context, models interface{}, id string, fields map[string]interface{}) (bool, error) {
 	for index, value := range fields {
-		if err := repo.db.Model(models).Where("id = ?", id).Update(index, value).Error; err != nil {
+		if err := repo.db.Debug().Model(models).Where("id = ?", id).Update(index, value).Error; err != nil {
 			return false, err
 		}
-	}
-	return true, nil
-}
-
-func (repo *repo) UpdateNested(ctx context.Context, models interface{}) (bool, error) {
-	if err := repo.db.Debug().Save(models).Error; err != nil {
-		return false, err
 	}
 	return true, nil
 }

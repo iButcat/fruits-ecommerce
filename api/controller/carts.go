@@ -20,11 +20,11 @@ type CartController interface {
 }
 
 type cartController struct {
-	service service.ServiceCarts
+	service service.CartsService
 	logger  log.Logger
 }
 
-func NewCartController(service service.ServiceCarts, logger log.Logger) CartController {
+func NewCartController(service service.CartsService, logger log.Logger) CartController {
 	return &cartController{
 		service: service,
 		logger:  logger,
@@ -33,6 +33,7 @@ func NewCartController(service service.ServiceCarts, logger log.Logger) CartCont
 
 func (c cartController) Add(ctx *gin.Context) {
 	var addRequestBody struct {
+		ProductID   string `json:"product_id"`
 		ProductName string `json:"product_name"`
 		Quantity    int    `json:"quantity"`
 	}
@@ -74,8 +75,8 @@ func (c cartController) List(ctx *gin.Context) {
 
 func (c cartController) Update(ctx *gin.Context) {
 	var updateBodyRequest struct {
-		ProductName string `json:"product_name"`
-		Quantity    int    `json:"quantity"`
+		ProductID string `json:"product_id"`
+		Quantity  int    `json:"quantity"`
 	}
 
 	data, err := ioutil.ReadAll(ctx.Request.Body)
@@ -89,7 +90,7 @@ func (c cartController) Update(ctx *gin.Context) {
 	claims := jwt.ExtractClaims(ctx)
 
 	success, err := c.service.UpdateCarts(ctx, claims["id"].(string),
-		updateBodyRequest.ProductName, updateBodyRequest.Quantity)
+		updateBodyRequest.ProductID, updateBodyRequest.Quantity)
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(400, gin.H{"error": err.Error()})

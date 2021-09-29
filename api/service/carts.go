@@ -4,26 +4,26 @@ import (
 	"context"
 	"ecommerce/models"
 	"ecommerce/repository"
-	"ecommerce/utils"
 	"errors"
+	"fmt"
 	"log"
 
 	"gorm.io/gorm"
 )
 
-type ServiceCarts interface {
+type CartsService interface {
 	ListCarts(ctx context.Context, userId string) (*models.Cart, error)
 	AddCarts(ctx context.Context, userID, productName string, quantity int) (string, error)
 	UpdateCarts(ctx context.Context, id string, name string, quantity int) (bool, error)
 }
 
-type serviceCarts struct {
+type cartsService struct {
 	repository repository.Repository
 	logger     log.Logger
 }
 
-func NewServiceCarts(repo repository.Repository, logger log.Logger) ServiceCarts {
-	return &serviceCarts{
+func NewServiceCarts(repo repository.Repository, logger log.Logger) CartsService {
+	return &cartsService{
 		repository: repo,
 		logger:     logger,
 	}
@@ -36,18 +36,28 @@ var productPrice = map[string]float64{
 	"pears":   0.85,
 }
 
-func (s serviceCarts) ListCarts(ctx context.Context, userId string) (*models.Cart, error) {
+func (s cartsService) ListCarts(ctx context.Context, userId string) (*models.Cart, error) {
 	fields := make(map[string]interface{})
 	fields["username"] = userId
-	data, err := s.repository.Get(ctx, &models.Cart{}, fields)
+	cartData, err := s.repository.Get(ctx, &models.Cart{}, fields)
 	if err != nil {
 		return nil, err
 	}
-	cart := data.(*models.Cart)
+	cart := cartData.(*models.Cart)
+
+	cartItemData, err := s.repository.FindAll(ctx, &[]models.CartItem{}, fmt.Sprint("cart_id = ", cart.ID))
+	if err != nil {
+		return nil, err
+	}
+	cartItem := cartItemData.(*[]models.CartItem)
+	log.Println("CART ITEM: ", cartItem)
+
+	cart.CartItems = append(cart.CartItems, *cartItem...)
+
 	return cart, nil
 }
 
-func (s serviceCarts) AddCarts(
+func (s cartsService) AddCarts(
 	ctx context.Context, userID, productName string, quantity int) (string, error) {
 	var userParams = make(map[string]interface{})
 	userParams["username"] = userID
@@ -60,15 +70,26 @@ func (s serviceCarts) AddCarts(
 	var cartParams = make(map[string]interface{})
 	cartParams["name"] = productName
 
-	price := productPrice[productName] * float64(quantity)
+	totalPrice := productPrice[productName] * float64(quantity)
 
 	cart := models.Cart{}
-	product := &models.Product{
-		Name:     productName,
-		Quantity: quantity,
-		Price:    price,
+
+	var fields = make(map[string]interface{})
+	fields["name"] = productName
+	dataProduct, err := s.repository.Get(ctx, &models.Product{}, fields)
+	if err != nil {
+		return "err while querying product: ", err
 	}
-	cart.Product = append(cart.Product, product)
+	product := dataProduct.(*models.Product)
+
+	cartItem := models.CartItem{
+		CartID:     cart.ID,
+		ProductID:  product.ID,
+		Name:       product.Name,
+		Quantity:   quantity,
+		TotalPrice: totalPrice,
+	}
+	cart.CartItems = append(cart.CartItems, cartItem)
 	cart.Quantity = quantity
 	cart.Username = user.Username
 
@@ -80,10 +101,10 @@ func (s serviceCarts) AddCarts(
 	return ok, nil
 }
 
-func (s serviceCarts) UpdateCarts(ctx context.Context, id string, name string, quantity int) (bool, error) {
+func (s cartsService) UpdateCarts(ctx context.Context, id string, cartID string, quantity int) (bool, error) {
 	var fields = make(map[string]interface{})
 	fields["username"] = id
-	data, err := s.repository.Get(ctx, &models.Cart{}, fields)
+	data, err := s.repository.First(ctx, &models.Cart{}, "1")
 	if err != nil {
 		return false, err
 	}
@@ -93,31 +114,38 @@ func (s serviceCarts) UpdateCarts(ctx context.Context, id string, name string, q
 	if len(cart.Username) == 0 {
 		return false, errNoUserFound
 	}
-	price := productPrice[name] * float64(quantity)
-	cartUpdated := &models.Product{
-		Model:    gorm.Model{ID: 5},
-		Name:     name,
-		Quantity: 18,
-		Price:    price,
+
+	cartItemUpdated := models.CartItem{
+		Model: gorm.Model{
+			ID: 2,
+		},
+		CartID:     1,
+		ProductID:  3,
+		Name:       "pears",
+		Quantity:   666,
+		TotalPrice: 666.666,
 	}
-	price = utils.CalculateDiscountBanana(quantity, cartUpdated.Price)
+
+	//price = utils.CalculateDiscountBanana(quantity, productUpdated.Price)
 
 	var field = make(map[string]interface{})
-	for _, value := range cart.Product {
-		if value.ID == cartUpdated.ID {
-			field["quantity"] = cartUpdated.Quantity
-			field["price"] = price
-			s.repository.Update(ctx, value, "5", field)
-			break
-		} else {
-			cart.Product = append(cart.Product, cartUpdated)
-			ok, err := s.repository.UpdateNested(ctx, &cart)
+	for index, cartItem := range cart.CartItems {
+		if cartItem.Name != cartItemUpdated.Name {
+			_, err := s.repository.Create(ctx, &cartItemUpdated)
 			if err != nil {
 				return false, err
 			}
-			log.Println("HERE2")
-			log.Println(ok)
+			return true, nil
+		} else {
+			field["quantity"] = 666
+			field["total_price"] = 666.666
+			ok, err := s.repository.Update(ctx, &cart.CartItems[index], cartID, field)
+			if err != nil {
+				return false, err
+			}
+			return ok, nil
 		}
 	}
+
 	return true, nil
 }

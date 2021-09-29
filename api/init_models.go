@@ -29,7 +29,8 @@ func noot(db *gorm.DB) {
 	ok, err := migrateModels(db,
 		&models.Product{},
 		&models.User{},
-		&models.Cart{})
+		&models.Cart{},
+		&models.CartItem{})
 	if ok && err == nil {
 		log.Println("models has been created")
 	} else {
@@ -39,25 +40,21 @@ func noot(db *gorm.DB) {
 
 func noot1(db *gorm.DB) {
 	ok, err := createBaseData(db, &models.Product{
-		Name:     "bananas",
-		Price:    0.85,
-		Quantity: 99,
-		Empty:    false,
+		Name:  "bananas",
+		Price: 0.85,
+		Empty: false,
 	}, &models.Product{
-		Name:     "apples",
-		Price:    0.70,
-		Quantity: 99,
-		Empty:    false,
+		Name:  "apples",
+		Price: 0.70,
+		Empty: false,
 	}, &models.Product{
-		Name:     "oranges",
-		Price:    0.67,
-		Quantity: 99,
-		Empty:    false,
+		Name:  "oranges",
+		Price: 0.67,
+		Empty: false,
 	}, &models.Product{
-		Name:     "pears",
-		Price:    0.85,
-		Quantity: 99,
-		Empty:    false,
+		Name:  "pears",
+		Price: 0.85,
+		Empty: false,
 	})
 	if ok && err == nil {
 		log.Println("models has been created")

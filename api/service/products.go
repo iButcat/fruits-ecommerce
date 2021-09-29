@@ -7,24 +7,24 @@ import (
 	"log"
 )
 
-type ServiceProducts interface {
+type ProductsService interface {
 	GetProducts(ctx context.Context) (*[]models.Product, error)
 	GetProduct(ctx context.Context, id string) (*models.Product, error)
 }
 
-type serviceProducts struct {
+type productsService struct {
 	repository repository.Repository
 	logger     log.Logger
 }
 
-func NewServiceProducts(repo repository.Repository, logger log.Logger) ServiceProducts {
-	return &serviceProducts{
+func NewServiceProducts(repo repository.Repository, logger log.Logger) ProductsService {
+	return &productsService{
 		repository: repo,
 		logger:     logger,
 	}
 }
 
-func (s serviceProducts) GetProducts(ctx context.Context) (*[]models.Product, error) {
+func (s productsService) GetProducts(ctx context.Context) (*[]models.Product, error) {
 	allProducts := []models.Product{}
 	data, err := s.repository.GetRows(ctx, &allProducts)
 	if err != nil {
@@ -34,6 +34,6 @@ func (s serviceProducts) GetProducts(ctx context.Context) (*[]models.Product, er
 	return data.(*[]models.Product), nil
 }
 
-func (s serviceProducts) GetProduct(ctx context.Context, id string) (*models.Product, error) {
+func (s productsService) GetProduct(ctx context.Context, id string) (*models.Product, error) {
 	return nil, nil
 }

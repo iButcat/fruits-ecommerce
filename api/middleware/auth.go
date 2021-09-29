@@ -21,8 +21,8 @@ func CustomJwtMiddleware(controllersAuth controller.AuthController) *jwt.GinJWTM
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
 		Key:         []byte("secret key"),
-		Timeout:     time.Hour,
-		MaxRefresh:  time.Hour,
+		Timeout:     time.Hour * 72,
+		MaxRefresh:  time.Hour * 72,
 		IdentityKey: identityKey,
 		PayloadFunc: func(data interface{}) jwt.MapClaims {
 			if v, ok := data.(*models.User); ok {
@@ -39,8 +39,7 @@ func CustomJwtMiddleware(controllersAuth controller.AuthController) *jwt.GinJWTM
 			}
 		},
 		Authenticator: controllersAuth.Login,
-		// jwt.ErrFailedAuthentication
-		// this is where we can filter per roles
+
 		Authorizator: nil,
 		/*
 			 func(data interface{}, c *gin.Context) bool {
@@ -57,22 +56,11 @@ func CustomJwtMiddleware(controllersAuth controller.AuthController) *jwt.GinJWTM
 				"message": message,
 			})
 		},
-		// TokenLookup is a string in the form of "<source>:<name>" that is used
-		// to extract token from the request.
-		// Optional. Default value "header:Authorization".
-		// Possible values:
-		// - "header:<name>"0
-		// - "query:<name>"
-		// - "cookie:<name>"
-		// - "param:<name>"
-		TokenLookup: "header: Authorization, query: token, cookie: jwt",
-		// TokenLookup: "query:token",
-		// TokenLookup: "cookie:token",
 
-		// TokenHeadName is a string in the header. Default value is "Bearer"
+		TokenLookup: "header: Authorization, query: token, cookie: jwt",
+
 		TokenHeadName: "Bearer",
 
-		// TimeFunc provides the current time. You can override it to use another time value. This is useful for testing or if your server uses a different time zone than your tokens.
 		TimeFunc: time.Now,
 	})
 
