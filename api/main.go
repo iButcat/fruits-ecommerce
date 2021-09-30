@@ -40,7 +40,9 @@ func main() {
 		productsController = controller.NewProductsController(productsService, log.Logger{})
 		cartService        = service.NewServiceCarts(repository, log.Logger{})
 		cartController     = controller.NewCartController(cartService, log.Logger{})
-		routerController   = router.NewControllerRouter(authController, productsController, cartController)
+		paymentService     = service.NewServicePayment(repository, log.Logger{})
+		paymentController  = controller.NewPaymentController(paymentService, log.Logger{})
+		routerController   = router.NewControllerRouter(authController, productsController, cartController, paymentController)
 	)
 
 	//noot(db)
