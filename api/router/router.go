@@ -17,15 +17,18 @@ type controllersRouter struct {
 	authController     controller.AuthController
 	productsController controller.ProductsController
 	cartController     controller.CartController
+	paymentController  controller.PaymentController
 }
 
 func NewControllerRouter(authController controller.AuthController,
 	productsController controller.ProductsController,
-	cartController controller.CartController) *controllersRouter {
+	cartController controller.CartController,
+	paymentController controller.PaymentController) *controllersRouter {
 	return &controllersRouter{
 		authController:     authController,
 		productsController: productsController,
 		cartController:     cartController,
+		paymentController:  paymentController,
 	}
 }
 
@@ -79,6 +82,12 @@ func (cr controllersRouter) NewRouter(logger log.Logger) *gin.Engine {
 			cartGroup.POST("/add", cr.cartController.Add)
 			cartGroup.GET("/list", cr.cartController.List)
 			cartGroup.PUT("/update", cr.cartController.Update)
+		}
+
+		paymentGroup := v1.Group("payment")
+		paymentGroup.Use(customJwtMiddleware.MiddlewareFunc())
+		{
+			paymentGroup.POST("/payment", cr.paymentController.CreatePayment)
 		}
 	}
 	return router
