@@ -14,7 +14,7 @@ import (
 type CartsService interface {
 	ListCarts(ctx context.Context, userId string) (*models.Cart, error)
 	AddCarts(ctx context.Context, userID, productName string, quantity int) (string, error)
-	UpdateCarts(ctx context.Context, id string, name string, quantity int) (bool, error)
+	UpdateCarts(ctx context.Context, quantity int, args []string) (bool, error)
 }
 
 type cartsService struct {
@@ -50,7 +50,6 @@ func (s cartsService) ListCarts(ctx context.Context, userId string) (*models.Car
 		return nil, err
 	}
 	cartItem := cartItemData.(*[]models.CartItem)
-	log.Println("CART ITEM: ", cartItem)
 
 	cart.CartItems = append(cart.CartItems, *cartItem...)
 
@@ -101,9 +100,9 @@ func (s cartsService) AddCarts(
 	return ok, nil
 }
 
-func (s cartsService) UpdateCarts(ctx context.Context, id string, cartID string, quantity int) (bool, error) {
+func (s cartsService) UpdateCarts(ctx context.Context, quantity int, args []string) (bool, error) {
 	var fields = make(map[string]interface{})
-	fields["username"] = id
+	fields["username"] = args[0]
 	data, err := s.repository.First(ctx, &models.Cart{}, "1")
 	if err != nil {
 		return false, err
@@ -139,7 +138,7 @@ func (s cartsService) UpdateCarts(ctx context.Context, id string, cartID string,
 		} else {
 			field["quantity"] = 666
 			field["total_price"] = 666.666
-			ok, err := s.repository.Update(ctx, &cart.CartItems[index], cartID, field)
+			ok, err := s.repository.Update(ctx, &cart.CartItems[index], args[1], field)
 			if err != nil {
 				return false, err
 			}
