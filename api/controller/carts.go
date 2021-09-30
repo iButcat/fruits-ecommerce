@@ -75,8 +75,9 @@ func (c cartController) List(ctx *gin.Context) {
 
 func (c cartController) Update(ctx *gin.Context) {
 	var updateBodyRequest struct {
-		ProductID string `json:"product_id"`
-		Quantity  int    `json:"quantity"`
+		CartID      string `json:"cart_id"`
+		ProductName string `json:"product_name"`
+		Quantity    int    `json:"quantity"`
 	}
 
 	data, err := ioutil.ReadAll(ctx.Request.Body)
@@ -89,8 +90,13 @@ func (c cartController) Update(ctx *gin.Context) {
 
 	claims := jwt.ExtractClaims(ctx)
 
-	success, err := c.service.UpdateCarts(ctx, claims["id"].(string),
-		updateBodyRequest.ProductID, updateBodyRequest.Quantity)
+	var args []string
+	args = append(args,
+		claims["id"].(string),
+		updateBodyRequest.CartID,
+		updateBodyRequest.ProductName)
+
+	success, err := c.service.UpdateCarts(ctx, updateBodyRequest.Quantity, args)
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(400, gin.H{"error": err.Error()})
