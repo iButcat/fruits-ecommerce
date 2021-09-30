@@ -29,8 +29,18 @@ func (s servicePayment) CreatePayment(ctx context.Context, userID, cartID string
 	payment := new(models.Payment)
 	payment.Username = userID
 	payment.CartID = cartID
-	payment.Amount = 0
-	_, err := s.repository.Create(ctx, &payment)
+
+	var fields = make(map[string]interface{})
+	fields["id"] = cartID
+	dataCart, err := s.repository.Get(ctx, &models.Cart{}, fields)
+	if err != nil {
+		return false, err
+	}
+	cart := dataCart.(*models.Cart)
+
+	payment.Amount = cart.TotalPrice
+
+	_, err = s.repository.Create(ctx, &payment)
 	if err != nil {
 		return false, err
 	}
