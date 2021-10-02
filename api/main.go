@@ -32,16 +32,18 @@ func main() {
 		}
 	}
 
+	var logger = log.Logger{}
+
 	var (
-		repository         = repository.NewRepo(db, log.Logger{})
-		authService        = service.NewAuthService(repository, log.Logger{})
-		authController     = controller.NewAuthController(authService, log.Logger{})
-		productsService    = service.NewServiceProducts(repository, log.Logger{})
-		productsController = controller.NewProductsController(productsService, log.Logger{})
-		cartService        = service.NewServiceCarts(repository, log.Logger{})
-		cartController     = controller.NewCartController(cartService, log.Logger{})
-		paymentService     = service.NewServicePayment(repository, log.Logger{})
-		paymentController  = controller.NewPaymentController(paymentService, log.Logger{})
+		repository         = repository.NewRepo(db, logger)
+		authService        = service.NewAuthService(repository, logger)
+		authController     = controller.NewAuthController(authService, logger)
+		productsService    = service.NewServiceProducts(repository, logger)
+		productsController = controller.NewProductsController(productsService, logger)
+		cartService        = service.NewServiceCarts(repository, logger)
+		cartController     = controller.NewCartController(cartService, logger)
+		paymentService     = service.NewServicePayment(repository, logger)
+		paymentController  = controller.NewPaymentController(paymentService, logger)
 		routerController   = router.NewControllerRouter(authController, productsController, cartController, paymentController)
 	)
 
