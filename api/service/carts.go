@@ -108,6 +108,11 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 		return false, errNoUserFound
 	}
 
+	var errNoProductNameFound = errors.New("no product name has been submitted")
+	if len(productName) == 0 {
+		return false, errNoProductNameFound
+	}
+
 	var productField = make(map[string]interface{})
 	productField["name"] = productName
 	dataProduct, err := s.repository.Get(ctx, &models.Product{}, productField)
