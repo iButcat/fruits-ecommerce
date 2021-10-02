@@ -5,16 +5,13 @@ import (
 	"ecommerce/models"
 	"ecommerce/repository"
 	"errors"
-	"fmt"
 	"log"
-
-	"gorm.io/gorm"
 )
 
 type CartsService interface {
 	ListCarts(ctx context.Context, userId string) (*models.Cart, error)
 	AddCarts(ctx context.Context, userID, productName string, quantity int) (string, error)
-	UpdateCarts(ctx context.Context, quantity int, args []string) (bool, error)
+	UpdateCarts(ctx context.Context, productName string, quantity int, args []string) (bool, error)
 }
 
 type cartsService struct {
@@ -36,6 +33,7 @@ var productPrice = map[string]float64{
 	"pears":   0.85,
 }
 
+// list cart from username
 func (s cartsService) ListCarts(ctx context.Context, userId string) (*models.Cart, error) {
 	fields := make(map[string]interface{})
 	fields["username"] = userId
@@ -45,17 +43,10 @@ func (s cartsService) ListCarts(ctx context.Context, userId string) (*models.Car
 	}
 	cart := cartData.(*models.Cart)
 
-	cartItemData, err := s.repository.FindAll(ctx, &[]models.CartItem{}, fmt.Sprint("cart_id = ", cart.ID))
-	if err != nil {
-		return nil, err
-	}
-	cartItem := cartItemData.(*[]models.CartItem)
-
-	cart.CartItems = append(cart.CartItems, *cartItem...)
-
 	return cart, nil
 }
 
+// Create a cart with an product item into it
 func (s cartsService) AddCarts(
 	ctx context.Context, userID, productName string, quantity int) (string, error) {
 	var userParams = make(map[string]interface{})
@@ -82,7 +73,6 @@ func (s cartsService) AddCarts(
 	product := dataProduct.(*models.Product)
 
 	cartItem := models.CartItem{
-		CartID:     cart.ID,
 		ProductID:  product.ID,
 		Name:       product.Name,
 		Quantity:   quantity,
@@ -92,6 +82,7 @@ func (s cartsService) AddCarts(
 	cart.Quantity = quantity
 	cart.Username = user.Username
 
+	log.Println("CART IN ADD: ", cart)
 	ok, err := s.repository.Create(ctx, &cart)
 	if err != nil {
 		return "", err
@@ -100,10 +91,13 @@ func (s cartsService) AddCarts(
 	return ok, nil
 }
 
-func (s cartsService) UpdateCarts(ctx context.Context, quantity int, args []string) (bool, error) {
-	var fields = make(map[string]interface{})
-	fields["username"] = args[0]
-	data, err := s.repository.First(ctx, &models.Cart{}, "1")
+// Update cart with new product item
+func (s cartsService) UpdateCarts(ctx context.Context, productName string,
+	quantity int, args []string) (bool, error) {
+
+	var cartFields = make(map[string]interface{})
+	cartFields["username"] = args[0]
+	data, err := s.repository.Get(ctx, &models.Cart{}, cartFields)
 	if err != nil {
 		return false, err
 	}
@@ -114,20 +108,24 @@ func (s cartsService) UpdateCarts(ctx context.Context, quantity int, args []stri
 		return false, errNoUserFound
 	}
 
-	cartItemUpdated := models.CartItem{
-		Model: gorm.Model{
-			ID: 2,
-		},
-		CartID:     1,
-		ProductID:  3,
-		Name:       "pears",
-		Quantity:   666,
-		TotalPrice: 666.666,
+	var productField = make(map[string]interface{})
+	productField["name"] = productName
+	dataProduct, err := s.repository.Get(ctx, &models.Product{}, productField)
+	if err != nil {
+		return false, err
 	}
 
-	//price = utils.CalculateDiscountBanana(quantity, productUpdated.Price)
+	product := dataProduct.(*models.Product)
 
-	var field = make(map[string]interface{})
+	cartItemUpdated := models.CartItem{
+		CartID:     cart.ID,
+		ProductID:  product.ID,
+		Name:       productName,
+		Quantity:   quantity,
+		TotalPrice: float64(quantity) * productPrice[productName],
+	}
+
+	var updateFields = make(map[string]interface{})
 	for index, cartItem := range cart.CartItems {
 		if cartItem.Name != cartItemUpdated.Name {
 			_, err := s.repository.Create(ctx, &cartItemUpdated)
@@ -136,9 +134,9 @@ func (s cartsService) UpdateCarts(ctx context.Context, quantity int, args []stri
 			}
 			return true, nil
 		} else {
-			field["quantity"] = 666
-			field["total_price"] = 666.666
-			ok, err := s.repository.Update(ctx, &cart.CartItems[index], args[1], field)
+			updateFields["quantity"] = 666
+			updateFields["total_price"] = 666.666
+			ok, err := s.repository.Update(ctx, &cart.CartItems[index], args[1], updateFields)
 			if err != nil {
 				return false, err
 			}

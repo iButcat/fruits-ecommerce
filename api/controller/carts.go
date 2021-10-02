@@ -96,7 +96,8 @@ func (c cartController) Update(ctx *gin.Context) {
 		updateBodyRequest.CartID,
 		updateBodyRequest.ProductName)
 
-	success, err := c.service.UpdateCarts(ctx, updateBodyRequest.Quantity, args)
+	success, err := c.service.UpdateCarts(ctx,
+		updateBodyRequest.ProductName, updateBodyRequest.Quantity, args)
 	if err != nil {
 		log.Println(err)
 		ctx.JSON(400, gin.H{"error": err.Error()})
