@@ -91,9 +91,20 @@ func (s cartsService) AddCarts(
 	return ok, nil
 }
 
+// custom error for our update logic
+var (
+	errMissingArgs        = errors.New("err missing args for update carts")
+	errNoProductNameFound = errors.New("no product name has been submitted")
+	errNoUserFound        = errors.New("no cart found for user")
+)
+
 // Update cart with new product item
 func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 	quantity int, args []string) (bool, error) {
+
+	if len(args) != 3 {
+		return false, errMissingArgs
+	}
 
 	var cartFields = make(map[string]interface{})
 	cartFields["username"] = args[0]
@@ -102,13 +113,10 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 		return false, err
 	}
 	cart := data.(*models.Cart)
-
-	var errNoUserFound = errors.New("no cart found for user:" + cart.Username)
 	if len(cart.Username) == 0 {
 		return false, errNoUserFound
 	}
 
-	var errNoProductNameFound = errors.New("no product name has been submitted")
 	if len(productName) == 0 {
 		return false, errNoProductNameFound
 	}
@@ -137,7 +145,6 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 			if err != nil {
 				return false, err
 			}
-			return true, nil
 		} else {
 			updateFields["quantity"] = 666
 			updateFields["total_price"] = 666.666
@@ -148,6 +155,5 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 			return ok, nil
 		}
 	}
-
 	return true, nil
 }
