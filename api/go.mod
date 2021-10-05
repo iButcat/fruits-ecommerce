@@ -6,7 +6,6 @@ require (
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.2 // indirect
 	github.com/spf13/viper v1.8.1
-	gorm.io/gorm v1.21.14 // indirect
 )
 
 require (
@@ -57,11 +56,8 @@ require (
 )
 
 require (
-	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
-	gopkg.in/dgrijalva/jwt-go.v3 v3.2.0 // indirect
+	github.com/gin-contrib/cors v1.3.1
+	gorm.io/gorm v1.21.14
 )
 
-require (
-	github.com/appleboy/gin-jwt v2.5.0+incompatible
-	github.com/gin-contrib/cors v1.3.1
-)
+require github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
