@@ -24,7 +24,7 @@ function Products() {
             ID: product[id].ID,
             product_name: product[id].name,
             price: product[id].price,
-            quantity: quantity
+            quantity: Number(quantity)
         });
 
         var token = localStorage.getItem('token');
@@ -33,10 +33,14 @@ function Products() {
             headers: { Authorization: `Bearer ${token}` }
         };
         console.log(productToAdd);
-        axios.post('http://localhost:8080/v1/cart/add', productToAdd, config)
-        .then(response => console.log(response.data));
+        if (productToAdd.product_name.length !== 0 && quantity !== 0) {
+            axios.post('http://localhost:8080/v1/cart/add', productToAdd, config)
+            .then(response => console.log(response.data));
+        } else {
+            return "empty";
+        }
     };
-    
+
 
     const getProducts = () => {
         return axios.get('http://localhost:8080/v1/products/getall');
@@ -45,6 +49,10 @@ function Products() {
     useEffect(() => {
         getProducts().then((response) => setProducts(response.data.products))
         .catch((error) => console.log(error));
+    }, []);
+
+    useEffect(() => {
+        console.log(productToAdd);
     }, []);
 
     return (
