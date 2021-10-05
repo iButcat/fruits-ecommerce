@@ -82,7 +82,6 @@ func (s cartsService) AddCarts(
 	cart.Quantity = quantity
 	cart.Username = user.Username
 
-	log.Println("CART IN ADD: ", cart)
 	ok, err := s.repository.Create(ctx, &cart)
 	if err != nil {
 		return "", err
@@ -146,8 +145,8 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 				return false, err
 			}
 		} else {
-			updateFields["quantity"] = 666
-			updateFields["total_price"] = 666.666
+			updateFields["quantity"] = quantity
+			updateFields["total_price"] = cartItemUpdated.TotalPrice
 			ok, err := s.repository.Update(ctx, &cart.CartItems[index], args[1], updateFields)
 			if err != nil {
 				return false, err

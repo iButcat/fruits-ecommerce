@@ -39,7 +39,8 @@ function Cart() {
                 return (
                 <div key={id}>
                     <h1>Name: {product.name}</h1>
-                    <p>Price: {product.price}</p>
+                    <p>Price: {product.total_price}</p>
+                    <p>Quantity: {product.quantity}</p>
                 </div>
                 );
             }) :
