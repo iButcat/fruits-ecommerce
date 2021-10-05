@@ -146,8 +146,8 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 				return false, err
 			}
 		} else {
-			updateFields["quantity"] = 666
-			updateFields["total_price"] = 666.666
+			updateFields["quantity"] = 333
+			updateFields["total_price"] = 333.333
 			ok, err := s.repository.Update(ctx, &cart.CartItems[index], args[1], updateFields)
 			if err != nil {
 				return false, err

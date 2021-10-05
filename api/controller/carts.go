@@ -67,20 +67,16 @@ func (c cartController) Add(ctx *gin.Context) {
 	userID := claims["id"].(string)
 
 	cart, err := c.service.ListCarts(ctx, userID)
-	log.Println("CART: ", cart)
 	if err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 	}
 	for _, cartItem := range cart.CartItems {
-		log.Println("ENTER LOOP")
 		if productName == cartItem.Name {
-			log.Println("NAME ARE EQUAL UPDATE: ")
 			var args []string
 			args = append(args,
 				claims["id"].(string),
 				fmt.Sprint(cart.ID),
 				addRequestBody.ProductName)
-			log.Println("ARGS: ", args)
 			success, err := c.service.UpdateCarts(ctx,
 				addRequestBody.ProductName, addRequestBody.Quantity, args)
 			if err != nil {
