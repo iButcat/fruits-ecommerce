@@ -81,7 +81,6 @@ func (s cartsService) AddCarts(
 	cart.CartItems = append(cart.CartItems, cartItem)
 	cart.Quantity = quantity
 	cart.Username = user.Username
-
 	ok, err := s.repository.Create(ctx, &cart)
 	if err != nil {
 		return "", err
@@ -154,5 +153,19 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 			return ok, nil
 		}
 	}
+
+	var totalPrice float64
+	for _, cartItem := range cart.CartItems {
+		totalPrice += cartItem.TotalPrice
+	}
+
+	log.Println("TOTAL PRICE: ", totalPrice)
+	log.Println("UPDATE FIELDS: ", updateFields)
+	updateFields["total_price"] = totalPrice
+	_, err = s.repository.Update(ctx, &models.Cart{}, args[1], updateFields)
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }

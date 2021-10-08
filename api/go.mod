@@ -60,4 +60,7 @@ require (
 	gorm.io/gorm v1.21.14
 )
 
-require github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+require (
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/tidwall/gjson v1.9.2 // indirect
+)

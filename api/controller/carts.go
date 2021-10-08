@@ -39,7 +39,6 @@ var (
 
 func (c cartController) Add(ctx *gin.Context) {
 	var addRequestBody struct {
-		ProductID   string `json:"product_id"`
 		ProductName string `json:"product_name"`
 		Quantity    int    `json:"quantity"`
 	}
@@ -70,13 +69,15 @@ func (c cartController) Add(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 	}
+
+	var args []string
+	args = append(args,
+		claims["id"].(string),
+		fmt.Sprint(cart.ID),
+		addRequestBody.ProductName)
 	for _, cartItem := range cart.CartItems {
 		if productName == cartItem.Name {
-			var args []string
-			args = append(args,
-				claims["id"].(string),
-				fmt.Sprint(cart.ID),
-				addRequestBody.ProductName)
+			log.Println("PRODUCT NAME EQUAL")
 			success, err := c.service.UpdateCarts(ctx,
 				addRequestBody.ProductName, addRequestBody.Quantity, args)
 			if err != nil {
@@ -86,6 +87,14 @@ func (c cartController) Add(ctx *gin.Context) {
 			}
 			ctx.JSON(200, gin.H{"sucess": success})
 			return
+		} else if len(cartItem.Name) != 0 {
+			log.Println("HERE LOOP NAME DIFF")
+			log.Println("ARGS: ", args)
+			_, err := c.service.UpdateCarts(ctx, productName, quantity, args)
+			if err != nil {
+				ctx.JSON(400, gin.H{"error": err.Error()})
+				return
+			}
 		}
 	}
 

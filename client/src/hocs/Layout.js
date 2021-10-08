@@ -1,4 +1,4 @@
-import React, { createContext, useReducer } from 'react';
+import React from 'react';
 
 import Footer from '../components/Footer';
 import NavbarI from '../components/Navbar';
