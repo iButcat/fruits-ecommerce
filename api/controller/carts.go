@@ -77,7 +77,6 @@ func (c cartController) Add(ctx *gin.Context) {
 		addRequestBody.ProductName)
 	for _, cartItem := range cart.CartItems {
 		if productName == cartItem.Name {
-			log.Println("PRODUCT NAME EQUAL")
 			success, err := c.service.UpdateCarts(ctx,
 				addRequestBody.ProductName, addRequestBody.Quantity, args)
 			if err != nil {
@@ -86,11 +85,8 @@ func (c cartController) Add(ctx *gin.Context) {
 				return
 			}
 			ctx.JSON(200, gin.H{"sucess": success})
-			return
 		} else if len(cartItem.Name) != 0 {
-			log.Println("HERE LOOP NAME DIFF")
-			log.Println("ARGS: ", args)
-			_, err := c.service.UpdateCarts(ctx, productName, quantity, args)
+			_, err := c.service.UpdateCarts(ctx, productName, addRequestBody.Quantity, args)
 			if err != nil {
 				ctx.JSON(400, gin.H{"error": err.Error()})
 				return

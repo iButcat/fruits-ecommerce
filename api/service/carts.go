@@ -158,14 +158,16 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 	for _, cartItem := range cart.CartItems {
 		totalPrice += cartItem.TotalPrice
 	}
-
 	log.Println("TOTAL PRICE: ", totalPrice)
+	log.Println("sum of the total price after discount")
 	log.Println("UPDATE FIELDS: ", updateFields)
-	updateFields["total_price"] = totalPrice
-	_, err = s.repository.Update(ctx, &models.Cart{}, args[1], updateFields)
-	if err != nil {
-		return false, err
-	}
+	/*
+		updateFields["total_price"] = totalPrice
+		_, err = s.repository.Update(ctx, &models.Cart{}, args[1], updateFields)
+		if err != nil {
+			return false, err
+		}
+	*/
 
 	return true, nil
 }
