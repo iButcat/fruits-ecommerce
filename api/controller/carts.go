@@ -70,37 +70,30 @@ func (c cartController) Add(ctx *gin.Context) {
 		ctx.JSON(400, gin.H{"error": err.Error()})
 	}
 
-	var args []string
-	args = append(args,
-		claims["id"].(string),
-		fmt.Sprint(cart.ID),
-		addRequestBody.ProductName)
-	for _, cartItem := range cart.CartItems {
-		if productName == cartItem.Name {
-			success, err := c.service.UpdateCarts(ctx,
-				addRequestBody.ProductName, addRequestBody.Quantity, args)
-			if err != nil {
-				log.Println(err)
-				ctx.JSON(400, gin.H{"error": err.Error()})
-				return
-			}
-			ctx.JSON(200, gin.H{"sucess": success})
-		} else if len(cartItem.Name) != 0 {
-			_, err := c.service.UpdateCarts(ctx, productName, addRequestBody.Quantity, args)
-			if err != nil {
-				ctx.JSON(400, gin.H{"error": err.Error()})
-				return
-			}
+	if len(cart.CartItems) == 0 {
+		success, err := c.service.AddCarts(ctx, userID, productName, quantity)
+		if err != nil {
+			log.Println(err)
+			ctx.JSON(400, gin.H{"error": err.Error()})
+			return
 		}
+		ctx.JSON(200, gin.H{"success": success})
+		return 
+	} else {
+		var args []string
+		args = append(args,
+			claims["id"].(string), fmt.Sprint(cart.ID), productName)
+		_, err := c.service.UpdateCarts(ctx,
+			productName, quantity, args)
+		if err != nil {
+			log.Println(err)
+			ctx.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+		ctx.JSON(200, gin.H{"success": "success"})
+		return 
 	}
 
-	success, err := c.service.AddCarts(ctx, userID, productName, quantity)
-	if err != nil {
-		log.Println(err)
-		ctx.JSON(400, gin.H{"error": err.Error()})
-		return
-	}
-	ctx.JSON(200, gin.H{"success": success})
 }
 
 func (c cartController) List(ctx *gin.Context) {

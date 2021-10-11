@@ -58,7 +58,7 @@ func main() {
 	}()
 
 	go func() {
-		router := routerController.NewRouter(log.Logger{})
+		router := routerController.NewRouter(logger)
 		log.Println("Starting server...")
 		errs <- router.Run(config.Port)
 		log.Println(errs)

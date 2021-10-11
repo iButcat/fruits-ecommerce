@@ -34,11 +34,11 @@ func ToString(field interface{}) string {
 
 func CalculateDiscountBanana(quantity int, totalPrice float64) float64 {
 	var result float64
-	var biggerThanSever bool
+	var biggerThanSeven bool
 	if quantity >= 7 {
-		biggerThanSever = true
+		biggerThanSeven = true
 	}
-	if biggerThanSever {
+	if biggerThanSeven {
 		result = totalPrice - (totalPrice * .10)
 	}
 	return result
