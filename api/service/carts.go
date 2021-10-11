@@ -139,30 +139,21 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 
 	var updateFields = make(map[string]interface{})
 	for index, cartItem := range cart.CartItems {
-		log.Println("ENTERING LOOP")
 		if cartItem.Name == cartItemUpdated.Name {
-			log.Println("NAME EQUAL")
 			updateFields["quantity"] = quantity
 			updateFields["total_price"] = cartItemUpdated.TotalPrice
-			log.Println("CART TO UPDATE: ", cart.CartItems[index])
-			log.Println("CART ID TO UPDATE: ", cart.CartItems[index].ID)
 			_, err := s.repository.Update(ctx, &cart.CartItems[index], fmt.Sprint(cart.CartItems[index].ID), updateFields)
 			if err != nil {
 				return false, err
 			}
 			return true, nil
 		}
-		log.Println("LOOP")
 	}
-	log.Println("LOOP ENDED")
-
-	log.Println("BEFORE CREATE")
 	success, err := s.repository.Create(ctx, &cartItemUpdated)
 	if err != nil {
 		return false, err
 	}
 	log.Println(success)
-
-	log.Println("FINAL RETURN")
+	
 	return true, nil
 }
