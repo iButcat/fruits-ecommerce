@@ -1,6 +1,7 @@
 package service
 
 import (
+	"fmt"
 	"context"
 	"ecommerce/models"
 	"ecommerce/repository"
@@ -27,7 +28,7 @@ func NewServiceCarts(repo repository.Repository, logger log.Logger) CartsService
 }
 
 var productPrice = map[string]float64{
-	"apple":   0.70,
+	"apples":   0.70,
 	"bananas": 0.85,
 	"oranges": 0.67,
 	"pears":   0.85,
@@ -138,36 +139,30 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 
 	var updateFields = make(map[string]interface{})
 	for index, cartItem := range cart.CartItems {
-		if cartItem.Name != cartItemUpdated.Name {
-			_, err := s.repository.Create(ctx, &cartItemUpdated)
-			if err != nil {
-				return false, err
-			}
-		} else {
+		log.Println("ENTERING LOOP")
+		if cartItem.Name == cartItemUpdated.Name {
+			log.Println("NAME EQUAL")
 			updateFields["quantity"] = quantity
 			updateFields["total_price"] = cartItemUpdated.TotalPrice
-			ok, err := s.repository.Update(ctx, &cart.CartItems[index], args[1], updateFields)
+			log.Println("CART TO UPDATE: ", cart.CartItems[index])
+			log.Println("CART ID TO UPDATE: ", cart.CartItems[index].ID)
+			_, err := s.repository.Update(ctx, &cart.CartItems[index], fmt.Sprint(cart.CartItems[index].ID), updateFields)
 			if err != nil {
 				return false, err
 			}
-			return ok, nil
+			return true, nil
 		}
+		log.Println("LOOP")
 	}
+	log.Println("LOOP ENDED")
 
-	var totalPrice float64
-	for _, cartItem := range cart.CartItems {
-		totalPrice += cartItem.TotalPrice
+	log.Println("BEFORE CREATE")
+	success, err := s.repository.Create(ctx, &cartItemUpdated)
+	if err != nil {
+		return false, err
 	}
-	log.Println("TOTAL PRICE: ", totalPrice)
-	log.Println("sum of the total price after discount")
-	log.Println("UPDATE FIELDS: ", updateFields)
-	/*
-		updateFields["total_price"] = totalPrice
-		_, err = s.repository.Update(ctx, &models.Cart{}, args[1], updateFields)
-		if err != nil {
-			return false, err
-		}
-	*/
+	log.Println(success)
 
+	log.Println("FINAL RETURN")
 	return true, nil
 }
