@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
 
 import axios from 'axios';
-import { Container } from 'react-bootstrap';
+import { Container, Button } from 'react-bootstrap';
+
+import PaymentButton from '../components/PaymentButton';
 
 function Cart() {
     const [cart, setCart] = useState([]);
@@ -22,6 +24,9 @@ function Cart() {
             if (response.status === 200) {
                 setCart(response.data.cart);
                 setIsLoading(false);
+                if (cart.ID !== 0) {
+                    localStorage.setItem('cart_id', cart.ID);
+                }
                 return;
             } else {
                 return;
@@ -46,6 +51,7 @@ function Cart() {
             }) :
             <h1>Cart is empty</h1>
             }
+            <Button onClick={() => <PaymentButton />}>Pay</Button>
             </div>
         </Container>
     );

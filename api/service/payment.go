@@ -44,7 +44,14 @@ func (s servicePayment) CreatePayment(ctx context.Context, userID, cartID string
 	if err != nil {
 		return false, err
 	}
-	return true, nil
+
+	// delete cart after when is paid
+	deleted, err := s.repository.Delete(ctx, &models.Cart{}, cartID)
+	if err != nil {
+		return false, err
+	}
+
+	return deleted, nil
 }
 
 func (s servicePayment) UpdatePayment(ctx context.Context, amount float64) (bool, error) {

@@ -86,7 +86,7 @@ func (cr controllersRouter) NewRouter(logger log.Logger) *gin.Engine {
 		paymentGroup := v1.Group("payment")
 		paymentGroup.Use(customJwtMiddleware.MiddlewareFunc())
 		{
-			paymentGroup.POST("/payment", cr.paymentController.CreatePayment)
+			paymentGroup.POST("/create", cr.paymentController.CreatePayment)
 		}
 	}
 	return router

@@ -26,7 +26,18 @@ function Products() {
             price: product[id].price,
             quantity: Number(quantity)
         });
+    };
 
+    const getProducts = () => {
+        return axios.get('http://localhost:8080/v1/products/getall');
+    };
+
+    useEffect(() => {
+        getProducts().then((response) => setProducts(response.data.products))
+        .catch((error) => console.log(error));
+    }, []);
+
+    useEffect(() => {
         var token = localStorage.getItem('token');
 
         var config = {
@@ -39,21 +50,7 @@ function Products() {
         } else {
             return "empty";
         }
-    };
-
-
-    const getProducts = () => {
-        return axios.get('http://localhost:8080/v1/products/getall');
-    };
-
-    useEffect(() => {
-        getProducts().then((response) => setProducts(response.data.products))
-        .catch((error) => console.log(error));
-    }, []);
-
-    useEffect(() => {
-        console.log(productToAdd);
-    }, []);
+    }, [productToAdd]);
 
     return (
         <Container>
