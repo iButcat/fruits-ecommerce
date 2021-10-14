@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -53,15 +54,15 @@ func main() {
 	errs := make(chan error)
 
 	go func() {
-		c := make(chan os.Signal)
+		c := make(chan os.Signal, 1)
 		signal.Notify(c, syscall.SIGINT, syscall.SIGTERM)
+		errs <- fmt.Errorf("%s", <-c)
 	}()
 
 	go func() {
 		router := routerController.NewRouter(logger)
 		log.Println("Starting server...")
 		errs <- router.Run(config.Port)
-		log.Println(errs)
 	}()
 
 	log.Println("exit", <-errs)

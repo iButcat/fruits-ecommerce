@@ -150,7 +150,8 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 		if cartItem.Name == cartItemUpdated.Name {
 			updateFields["quantity"] = quantity
 			updateFields["total_price"] = cartItemUpdated.TotalPrice
-			_, err := s.repository.Update(ctx, &cart.CartItems[index], fmt.Sprint(cart.CartItems[index].ID), updateFields)
+			_, err := s.repository.Update(ctx, &cart.CartItems[index],
+				fmt.Sprint(cart.CartItems[index].ID), updateFields)
 			if err != nil {
 				return false, err
 			}

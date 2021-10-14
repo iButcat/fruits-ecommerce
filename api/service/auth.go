@@ -44,6 +44,31 @@ func (s authService) Register(ctx context.Context, user models.User) (string, er
 		return "", errWhileSaving
 	}
 
+	var fielUsername = make(map[string]interface{})
+	fielUsername["username"] = user.Username
+	dataUser, err := s.repository.Get(ctx, &models.User{}, fielUsername)
+	if err != nil {
+		return "error while fetching user data: ", err
+	}
+	checkUsername := dataUser.(*models.User).Username
+
+	var errUsernameExists = errors.New("err username is already taken")
+	if checkUsername == user.Username {
+		return "", errUsernameExists
+	}
+
+	var fieldEmail = make(map[string]interface{})
+	fieldEmail["email"] = user.Email
+	dataUserEmail, err := s.repository.Get(ctx, &models.User{}, fieldEmail)
+	if err != nil {
+		return "error while fetching user data: ", err
+	}
+	checkEmail := dataUserEmail.(*models.User).Email
+	var errEmailExists = errors.New("err email is already taken")
+	if checkEmail == user.Email {
+		return "", errEmailExists
+	}
+
 	ok, err := s.repository.Create(ctx, &user)
 	if err != nil {
 		log.Println("error while saving user: ", err)
