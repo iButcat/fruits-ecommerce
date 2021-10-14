@@ -1,11 +1,12 @@
 package service
 
 import (
-	"fmt"
 	"context"
 	"ecommerce/models"
 	"ecommerce/repository"
+	"ecommerce/utils"
 	"errors"
+	"fmt"
 	"log"
 )
 
@@ -28,7 +29,7 @@ func NewServiceCarts(repo repository.Repository, logger log.Logger) CartsService
 }
 
 var productPrice = map[string]float64{
-	"apples":   0.70,
+	"apples":  0.70,
 	"bananas": 0.85,
 	"oranges": 0.67,
 	"pears":   0.85,
@@ -63,6 +64,12 @@ func (s cartsService) AddCarts(
 
 	totalPrice := productPrice[productName] * float64(quantity)
 
+	totalPriceDiscount := utils.CalculateDiscountApples(productName, quantity, totalPrice)
+	if totalPriceDiscount != 0 {
+		totalPrice = totalPriceDiscount
+	}
+	log.Println("total price after discount: ", totalPriceDiscount)
+
 	cart := models.Cart{}
 
 	var fields = make(map[string]interface{})
@@ -82,6 +89,7 @@ func (s cartsService) AddCarts(
 	cart.CartItems = append(cart.CartItems, cartItem)
 	cart.Quantity = quantity
 	cart.Username = user.Username
+	cart.TotalPrice = cartItem.TotalPrice
 	ok, err := s.repository.Create(ctx, &cart)
 	if err != nil {
 		return "", err
@@ -146,6 +154,14 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 			if err != nil {
 				return false, err
 			}
+			var updateFieldTotalPrice = make(map[string]interface{})
+			updateFieldTotalPrice["total_price"] = utils.CalculateTotalPriceCart(*cart)
+			success, err := s.repository.Update(ctx, &cart, fmt.Sprint(cart.ID), updateFieldTotalPrice)
+			if err != nil {
+				return false, err
+			}
+			log.Println(success)
+			log.Println("Done")
 			return true, nil
 		}
 	}
@@ -154,6 +170,13 @@ func (s cartsService) UpdateCarts(ctx context.Context, productName string,
 		return false, err
 	}
 	log.Println(success)
-	
+
+	var updateFieldTotalPrice = make(map[string]interface{})
+	updateFieldTotalPrice["total_price"] = utils.CalculateTotalPriceCart(*cart)
+	_, err = s.repository.Update(ctx, &cart, fmt.Sprint(cart.ID), updateFieldTotalPrice)
+	if err != nil {
+		return false, err
+	}
+
 	return true, nil
 }

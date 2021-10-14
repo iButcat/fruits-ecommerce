@@ -32,7 +32,6 @@ function Cart() {
     return (
         <Container>
             <div className="cart">
-            <h1>{cart.ID}</h1>
             <h1>{cart.username}</h1>
             <p>Total: {cart.total_price}</p>
             { cart.products ?             
