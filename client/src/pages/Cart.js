@@ -17,10 +17,6 @@ function Cart() {
         return axios.get('http://localhost:8080/v1/cart/list', config)
     };
 
-    const redirect = () => {
-
-    };
-
     useEffect(() => {
         getCart()
         .then((response) => {
@@ -28,7 +24,6 @@ function Cart() {
                 setCart(response.data.cart);
                 setIsLoading(false);
                 if (cart.ID !== 0) {
-                    console.log("CART ID", cart.ID)
                     localStorage.setItem('cart_id', cart.ID);
                 }
                 return;
