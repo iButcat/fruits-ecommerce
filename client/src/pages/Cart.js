@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 
 import axios from 'axios';
 import { Container } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 
 function Cart() {
     const [cart, setCart] = useState([]);
@@ -16,18 +17,26 @@ function Cart() {
         return axios.get('http://localhost:8080/v1/cart/list', config)
     };
 
+    const redirect = () => {
+
+    };
+
     useEffect(() => {
         getCart()
         .then((response) => {
             if (response.status === 200) {
                 setCart(response.data.cart);
                 setIsLoading(false);
+                if (cart.ID !== 0) {
+                    console.log("CART ID", cart.ID)
+                    localStorage.setItem('cart_id', cart.ID);
+                }
                 return;
             } else {
                 return;
             }
         });
-    }, [])
+    }, [cart.ID])
 
     return (
         <Container>
@@ -46,6 +55,7 @@ function Cart() {
             }) :
             <h1>Cart is empty</h1>
             }
+            <Link to="/payment" className="btn btn-primary">Pay</Link>
             </div>
         </Container>
     );

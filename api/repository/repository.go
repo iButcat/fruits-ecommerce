@@ -40,7 +40,7 @@ func (repo *repo) Create(ctx context.Context, models interface{}) (string, error
 
 	tx := repo.db.Create(models)
 	if tx.Error != nil {
-		return "err while creating models: ", tx.Error
+		return "", tx.Error
 	}
 	return "Data has been created", nil
 }
@@ -61,7 +61,6 @@ func (repo *repo) GetRows(ctx context.Context, models interface{}) (interface{},
 // Get data from different query fields
 func (repo *repo) Get(
 	ctx context.Context, models interface{}, fields map[string]interface{}) (interface{}, error) {
-	log.Println("FIELDS REPO: ", fields)
 	if err := repo.db.Where(fields).Preload(clause.Associations).Find(models).Error; err != nil {
 		return nil, err
 	}

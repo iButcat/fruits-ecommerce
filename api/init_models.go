@@ -30,7 +30,8 @@ func noot(db *gorm.DB) {
 		&models.Product{},
 		&models.User{},
 		&models.Cart{},
-		&models.CartItem{})
+		&models.CartItem{},
+		&models.Payment{})
 	if ok && err == nil {
 		log.Println("models has been created")
 	} else {

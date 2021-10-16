@@ -9,6 +9,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Products from './pages/Products';
 import Register from './pages/Register';
+import Payment from './pages/Payment';
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
             <Route exact path='/home' component={Home} />
             <Route exact path='/products' component={Products} />
             <Route exact path='/cart' component={Cart} />
+            <Route exact path='/payment' component={Payment} />
           </Layout>
         </Fragment>
         </Switch>
