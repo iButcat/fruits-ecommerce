@@ -25,7 +25,12 @@ func NewProductsController(service service.ProductsService, logger log.Logger) P
 }
 
 func (c productsController) GetById(ctx *gin.Context) {
-
+	product, err := c.service.GetProduct(ctx, "1")
+	if err != nil {
+		log.Println(err)
+		return
+	}
+	ctx.JSON(200, gin.H{"product": product})
 }
 
 func (c productsController) GetAll(ctx *gin.Context) {
