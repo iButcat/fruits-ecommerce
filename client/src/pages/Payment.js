@@ -2,7 +2,7 @@ import axios from 'axios';
 import React, { useState, useEffect } from 'react';
 
 import { Button } from 'react-bootstrap';
-import { Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 function Payment() {
     const [hasPaid, setHasPaid] = useState(false);
@@ -45,7 +45,7 @@ function Payment() {
             <p>{shippingAddress.Country}</p>
             <Button>
             {hasPaid ? 
-            <Redirect to="/home" style={{ textDecoration: 'none' }}>Pay</Redirect> 
+            <Link to="/home" style={{ textDecoration: 'none' }}>Pay</Link> 
             : 
             ""}
             </Button>
