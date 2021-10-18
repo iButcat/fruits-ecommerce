@@ -17,6 +17,7 @@ var (
 	identityKey = "id"
 )
 
+// TODO: make a function that returns new JWT with diff params
 func CustomJwtMiddleware(controllersAuth controller.AuthController) *jwt.GinJWTMiddleware {
 	authMiddleware, err := jwt.New(&jwt.GinJWTMiddleware{
 		Realm:       "test zone",
