@@ -103,7 +103,7 @@ func (repo *repo) Update(
 
 // delete any given data from models with id
 func (repo *repo) Delete(ctx context.Context, models interface{}, id string) (bool, error) {
-	if err := repo.db.Delete(models, id).Error; err != nil {
+	if err := repo.db.Debug().Delete(models, id).Error; err != nil {
 		return false, err
 	}
 	return true, nil
