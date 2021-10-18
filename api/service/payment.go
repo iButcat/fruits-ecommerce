@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"ecommerce/models"
@@ -37,6 +38,11 @@ func (s servicePayment) CreatePayment(ctx context.Context, userID, cartID string
 		return false, err
 	}
 	cart := dataCart.(*models.Cart)
+
+	var errNoCartFound = errors.New("err no cart found with given id")
+	if len(cart.Username) == 0 || cart.TotalPrice == 0 {
+		return false, errNoCartFound
+	}
 
 	payment.Amount = cart.TotalPrice
 

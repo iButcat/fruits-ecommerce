@@ -40,6 +40,11 @@ func (c paymentController) CreatePayment(ctx *gin.Context) {
 	}
 	json.Unmarshal(data, &createPaymentRequest)
 
+	if !createPaymentRequest.Paid {
+		log.Println("command is not paid")
+		return
+	}
+
 	// turns it into function
 	claims := jwt.ExtractClaims(ctx)
 
