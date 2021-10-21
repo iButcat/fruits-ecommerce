@@ -67,6 +67,6 @@ I'm going to add all the endpoints ASAP or implement SWAGGER.
 
 Not the most complete documentation, it's still usefull. Both images correspond to the first and second step of the C4 model.
 
-![context]()
+![context](https://github.com/iButcat/fruits-ecommerce/blob/main/architecture/cinemo-Context.jpg)
 
-![container]()
+![container](https://github.com/iButcat/fruits-ecommerce/blob/main/architecture/cinemo-Container%20.jpg)
