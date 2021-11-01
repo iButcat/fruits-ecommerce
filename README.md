@@ -53,7 +53,7 @@ if you did so you can comment both noot function and simply use:
 
 About the frontend you need to install all the dependencies as well.
 
-````yarn install```
+```yarn install```
 
 And then start the project: 
 
